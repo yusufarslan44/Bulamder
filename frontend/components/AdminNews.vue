@@ -6,12 +6,17 @@
                 <v-icon size="24" color="primary" class="mr-2">mdi-newspaper-plus</v-icon>
                 Yeni Haber Ekle
             </v-card-title>
+
             <v-card-text>
                 <v-form @submit.prevent="handleNewsCreate">
+
+
                     <v-text-field v-model="newsForm.title" label="Başlık" required></v-text-field>
-
-                    <v-textarea v-model="newsForm.description" label="Haber İçeriği" required></v-textarea>
-
+                    <div class="my-2" style="border: 2px solid #ccc;">
+                        <client-only>
+                            <QuillEditor v-model:content="newsForm.description" content-type="html" theme="snow" />
+                        </client-only>
+                    </div>
                     <v-file-input v-model="newsForm.image" label="Haber Görseli" accept="image/*"
                         required></v-file-input>
 
@@ -121,6 +126,7 @@
 
 <script setup>
 import { useNewsStore } from '@/stores/news'
+
 
 const newsStore = useNewsStore()
 const newsDialog = ref(false)

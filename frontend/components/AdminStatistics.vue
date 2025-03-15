@@ -83,8 +83,8 @@
                     <v-card-text>
                         <v-sheet height="300">
                             <v-sparkline :value="weeklyVisitorValues"
-                                :labels="['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']" color="success" gradient
-                                fill smooth auto-draw stroke-linecap="round" line-width="3" padding="16" show-labels
+                                :labels="['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']" color="success" fill smooth
+                                auto-draw stroke-linecap="round" line-width="3" padding="16" show-labels
                                 label-size="14"></v-sparkline>
                         </v-sheet>
                     </v-card-text>

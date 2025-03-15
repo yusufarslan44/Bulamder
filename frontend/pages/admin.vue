@@ -12,8 +12,8 @@
                     <v-list class="sidebar-menu py-4">
                         <v-list-item v-for="(item, i) in menuItems" :key="i" :value="item" :title="item.title"
                             @click="currentSection = item.value" :active="currentSection === item.value"
-                            active-color="white" class="mb-3 menu-item" :prepend-icon="item.icon" color="white"
-                            rounded="xl" :class="{ 'active-item': currentSection === item.value }">
+                            class="mb-3 menu-item" :prepend-icon="item.icon" color="white" rounded="xl"
+                            :class="{ 'active-item': currentSection === item.value }">
                         </v-list-item>
                     </v-list>
                     <div class="user-section pa-4">
@@ -38,7 +38,7 @@
                                 <v-col cols="6">
                                     <div class="d-flex align-center">
                                         <v-icon size="30" color="white" class="mr-3">{{ getCurrentSectionIcon
-                                        }}</v-icon>
+                                            }}</v-icon>
                                         <h2 class="text-h4 font-weight-bold white--text">{{ getCurrentSectionTitle }}
                                         </h2>
                                     </div>
@@ -161,7 +161,7 @@ const menuItems = [
 ]
 
 // Genel state
-const currentSection = ref('statistics')
+const currentSection = ref('news')
 
 // Computed properties
 const getCurrentSectionTitle = computed(() => {

@@ -60,7 +60,7 @@
                                         <v-img :src="haber.imageUrl" height="200" cover></v-img>
                                         <v-card-item>
                                             <v-chip color="primary" size="small" class="mb-2">{{ haber.category
-                                            }}</v-chip>
+                                                }}</v-chip>
                                             <v-card-title class="text-h6 font-weight-bold">
                                                 {{ haber.title }}
                                             </v-card-title>
