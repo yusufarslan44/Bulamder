@@ -1,25 +1,23 @@
 const Photo = require('../models/Photo');
 const cloudinary = require('../config/cloudinary');
-
+const fs = require("fs");
 // Fotoğraf yükle
 exports.uploadPhoto = async (req, res) => {
+  console.log("req body", req.body);
+  console.log("req file", req.file);
   try {
     let imageUrl = '';
 
-    if (req.file) {
-      // Resmi base64 formatına çevir
-      const b64 = Buffer.from(req.file.buffer).toString('base64');
-      let dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
 
-      // Cloudinary'ye yükle
-      const result = await cloudinary.uploader.upload(dataURI, {
-        folder: 'celikhan/photos',
-        resource_type: 'auto'
-      });
+    // Cloudinary'ye yükle
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'celikhan/photos',
+      resource_type: 'auto'
+    });
 
-      imageUrl = result.secure_url;
-    }
+    imageUrl = result.secure_url;
 
+    fs.unlinkSync(req.file.path);
     const photo = new Photo({
       title: req.body.title,
       description: req.body.description,
@@ -52,10 +50,10 @@ exports.getAllPhotos = async (req, res) => {
 // Kategoriye göre fotoğrafları getir
 exports.getPhotosByCategory = async (req, res) => {
   try {
-    const photos = await Photo.find({ 
-      category: req.params.category 
+    const photos = await Photo.find({
+      category: req.params.category
     }).sort({ createdAt: -1 });
-    
+
     res.json(photos);
   } catch (error) {
     res.status(500).json({ message: 'Fotoğraflar getirilirken bir hata oluştu' });

@@ -17,6 +17,7 @@ export const usePhotoStore = defineStore('photo', {
       this.error = null
       try {
         const { data } = await axios.get(`${API_URL}/photos`)
+        console.log("pinia foto data", data);
         this.photos = data
       } catch (error) {
         console.error('Fotoğraflar yüklenirken hata:', error)
@@ -87,10 +88,10 @@ export const usePhotoStore = defineStore('photo', {
   getters: {
     // Yüklenen fotoğrafları getir
     getPhotos: (state) => state.photos,
-    
+
     // Yükleniyor durumunu getir
     isLoading: (state) => state.loading,
-    
+
     // Hata durumunu getir
     getError: (state) => state.error,
 
