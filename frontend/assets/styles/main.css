@@ -1,0 +1,120 @@
+:root {
+    /* Ana Renkler */
+    --primary-color: #2E7D32;
+    --secondary-color: #4CAF50;
+    --accent-color: #81C784;
+    --background-color: #F5F5F5;
+
+    /* Metin Renkleri */
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-light: #FFFFFF;
+
+    /* Gölge Efektleri */
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+
+    /* Geçiş Efektleri */
+    --transition-speed: 0.3s;
+    --transition-timing: ease-in-out;
+
+    /* Gradyan Renkler */
+    --gradient-primary: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+    --gradient-background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+
+    /* Border Radius */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+}
+
+/* Genel Stil Sınıfları */
+.card-hover {
+    transition: transform var(--transition-speed) var(--transition-timing);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+}
+
+.gradient-bg {
+    background: var(--gradient-background);
+}
+
+.gradient-primary {
+    background: var(--gradient-primary);
+}
+
+.text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Animasyon Sınıfları */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity var(--transition-speed) var(--transition-timing);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+/* Responsive Container */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+}
+
+/* Buton Stilleri */
+.custom-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-speed) var(--transition-timing);
+}
+
+.custom-btn:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+/* Kart Stilleri */
+.custom-card {
+    background: var(--background-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--box-shadow);
+    transition: all var(--transition-speed) var(--transition-timing);
+}
+
+.custom-card:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+/* Form Elemanları */
+.custom-input {
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm);
+    border: 1px solid var(--secondary-color);
+    transition: border-color var(--transition-speed) var(--transition-timing);
+}
+
+.custom-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+} 
