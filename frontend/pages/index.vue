@@ -47,26 +47,43 @@
                 </v-col>
             </v-row>
 
+            <!-- Haberler için yatay slider -->
             <v-row>
-                <v-col v-for="(haber, index) in sonHaberler" :key="index" cols="12" md="4">
-                    <v-card class="h-100" elevation="2">
-                        <v-img :src="haber.image" height="200" cover></v-img>
-                        <v-card-item>
-                            <v-chip color="primary" size="small" class="mb-2">{{ haber.category }}</v-chip>
-                            <v-card-title class="text-h6 font-weight-bold">
-                                {{ haber.title }}
-                            </v-card-title>
-                            <v-card-text class="text-body-2">
-                                {{ haber.summary }}
-                            </v-card-text>
-                            <div class="d-flex justify-space-between align-center">
-                                <span class="text-caption text-grey">{{ haber.date }}</span>
-                                <v-btn variant="text" color="primary" to="/gundem">
-                                    Devamını Oku
-                                </v-btn>
-                            </div>
-                        </v-card-item>
-                    </v-card>
+                <v-col cols="12">
+                    <v-carousel :key="filteredNews.length" :show-arrows="true" height="400" hide-delimiter-background
+                        :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" hide-delimiters>
+                        <v-carousel-item v-for="i in Math.ceil(filteredNews.length / 3)" :key="i">
+                            <v-row>
+                                <v-col v-for="(haber, index) in filteredNews.slice((i - 1) * 3, i * 3)" :key="index"
+                                    cols="12" md="4">
+                                    <v-card class="h-100" elevation="2">
+                                        <v-img :src="haber.imageUrl" height="200" cover></v-img>
+                                        <v-card-item>
+                                            <v-chip color="primary" size="small" class="mb-2">{{ haber.category
+                                            }}</v-chip>
+                                            <v-card-title class="text-h6 font-weight-bold">
+                                                {{ haber.title }}
+                                            </v-card-title>
+                                            <v-card-text class="text-body-2">
+                                                {{ haber.description }}
+                                            </v-card-text>
+                                            <div class="d-flex justify-space-between align-center">
+                                                <span class="text-caption text-grey">{{ haber.date }}</span>
+                                                <v-btn variant="text" color="primary" to="/gundem">
+                                                    Devamını Oku
+                                                </v-btn>
+                                            </div>
+                                        </v-card-item>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                        </v-carousel-item>
+                    </v-carousel>
+                    <div class="text-center mt-4">
+                        <v-btn color="primary" to="/gundem">
+                            Tüm Haberleri Gör
+                        </v-btn>
+                    </div>
                 </v-col>
             </v-row>
         </v-container>
@@ -115,19 +132,43 @@
                 </v-col>
             </v-row>
 
+            <!-- Galeri için yatay slider -->
             <v-row>
-                <v-col v-for="(photo, index) in galleryPreview" :key="index" cols="12" sm="6" md="3">
-                    <v-card class="gallery-card" elevation="2">
-                        <v-img :src="photo.image" :aspect-ratio="1" cover class="gallery-image"></v-img>
-                    </v-card>
-                </v-col>
-            </v-row>
+                <v-col cols="12">
+                    <v-carousel :key="filteredPhotos.length" :show-arrows="true" height="310" hide-delimiter-background
+                        :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" hide-delimiters>
+                        <v-carousel-item v-for="i in Math.ceil(filteredPhotos.length / 4)" :key="i">
+                            <v-row>
+                                <v-col v-for="(photo, index) in filteredPhotos.slice((i - 1) * 4, i * 4)" :key="index"
+                                    cols="12" sm="6" md="3">
+                                    <v-card class="mx-auto" elevation="2" height="100%">
+                                        <v-img :src="photo.imageUrl" :alt="photo.title" class="align-end" height="200"
+                                            cover>
+                                            <v-card-title class="text-white bg-black bg-opacity-50">
+                                                {{ photo.title }}
+                                            </v-card-title>
+                                        </v-img>
 
-            <v-row class="mt-8">
-                <v-col cols="12" class="text-center">
-                    <v-btn color="primary" size="x-large" to="/galeri">
-                        Tüm Fotoğrafları Gör
-                    </v-btn>
+                                        <v-card-text>
+                                            <div class="text-subtitle-1 mb-2">
+                                                {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
+                                                    "..." : photo.description }}
+                                            </div>
+
+                                            <v-chip size="small" :color="getCategoryColor(photo.category)" class="mt-2">
+                                                {{ getCategoryLabel(photo.category) }}
+                                            </v-chip>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                        </v-carousel-item>
+                    </v-carousel>
+                    <div class="text-center mt-4">
+                        <v-btn color="primary" size="x-large" to="/galeri">
+                            Tüm Fotoğrafları Gör
+                        </v-btn>
+                    </div>
                 </v-col>
             </v-row>
         </v-container>
@@ -135,29 +176,42 @@
 </template>
 
 <script setup>
-const sonHaberler = [
-    {
-        category: 'Etkinlik',
-        title: 'Köy Festivali Yaklaşıyor',
-        summary: 'Geleneksel köy festivalimiz bu yıl daha renkli ve eğlenceli olacak.',
-        image: 'https://cdn.pixabay.com/photo/2025/01/03/06/55/cortina-dampezzo-9307295_1280.jpg',
-        date: '10 Mart 2024'
-    },
-    {
-        category: 'Altyapı',
-        title: 'Yol Çalışmaları Tamamlandı',
-        summary: 'Köyümüzün ana yolu yenilendi ve ulaşım artık daha konforlu.',
-        image: 'https://cdn.pixabay.com/photo/2022/03/11/17/02/italy-7062654_1280.jpg',
-        date: '8 Mart 2024'
-    },
-    {
-        category: 'Kültür',
-        title: 'El Sanatları Sergisi',
-        summary: 'Köyümüzün geleneksel el sanatları sergisi büyük ilgi gördü.',
-        image: 'https://cdn.pixabay.com/photo/2024/01/16/21/31/cortina-dampezzo-8513148_1280.jpg',
-        date: '5 Mart 2024'
+const photos = computed(() => usePhotoStore().getPhotos)
+const newsStore = computed(() => useNewsStore().getNews)
+const filteredNews = computed(() => {
+    let filtered = newsStore.value
+    return filtered.slice(0, 20) // İlk 20 haberi al
+})
+
+const filteredPhotos = computed(() => {
+    let filtered = photos.value
+    return filtered.slice(0, 20) // İlk 20 fotoğrafı al
+})
+
+const getCategoryColor = (category) => {
+    const colors = {
+        dogal: 'green',
+        kultur: 'blue',
+        etkinlik: 'purple',
+        tarihi: 'orange'
     }
-]
+    return colors[category] || 'grey'
+}
+
+const getCategoryLabel = (category) => {
+    const labels = {
+        dogal: 'Doğal',
+        kultur: 'Kültür',
+        etkinlik: 'Etkinlik',
+        tarihi: 'Tarihi'
+    }
+    return labels[category] || category
+}
+
+onBeforeMount(async () => {
+    await usePhotoStore().fetchPhotos()
+    await useNewsStore().fetchNews()
+})
 
 const upcomingEvent = {
     title: 'Geleneksel Köy Festivali',
@@ -165,21 +219,6 @@ const upcomingEvent = {
     date: '15 Haziran 2024',
     location: 'Köy Meydanı'
 }
-
-const galleryPreview = [
-    {
-        image: 'https://cdn.pixabay.com/photo/2016/11/19/15/03/buildings-1839726_1280.jpg'
-    },
-    {
-        image: 'https://cdn.pixabay.com/photo/2016/08/15/14/35/village-1595393_1280.jpg'
-    },
-    {
-        image: 'https://cdn.pixabay.com/photo/2016/11/23/15/14/wooden-house-1853506_1280.jpg'
-    },
-    {
-        image: 'https://cdn.pixabay.com/photo/2020/05/03/11/54/old-5124738_1280.jpg'
-    }
-]
 
 const heroImages = [
     'https://cdn.pixabay.com/photo/2021/06/19/17/51/italy-6349105_1280.jpg',
@@ -206,7 +245,6 @@ const heroImages = [
 
 .v-carousel {
     width: 100%;
-    max-width: 500px;
     border-radius: 12px;
     overflow: hidden;
 }
@@ -230,6 +268,18 @@ const heroImages = [
 
 .gallery-card:hover .gallery-image {
     opacity: 0.9;
+}
+
+.v-card {
+    transition: transform 0.2s;
+}
+
+.v-card:hover {
+    transform: translateY(-5px);
+}
+
+.bg-opacity-50 {
+    background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 @keyframes float {

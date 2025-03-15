@@ -38,7 +38,7 @@
                                 <v-col cols="6">
                                     <div class="d-flex align-center">
                                         <v-icon size="30" color="white" class="mr-3">{{ getCurrentSectionIcon
-                                            }}</v-icon>
+                                        }}</v-icon>
                                         <h2 class="text-h4 font-weight-bold white--text">{{ getCurrentSectionTitle }}
                                         </h2>
                                     </div>
