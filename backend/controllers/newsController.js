@@ -1,32 +1,59 @@
 const News = require("../models/News");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
+const cheerio = require("cheerio");
 
 exports.createNews = async (req, res) => {
   console.log("Gelen request body:", req.body);
   console.log("Yüklenen dosya bilgisi:", req.file);
 
-  if (!req.file) {
-    return res.status(400).json({ error: "Resim dosyası yüklenmedi!" });
-  }
-
   try {
     let imageUrl = "";
+    let description = req.body.description;
 
-    // Cloudinary'ye yükle
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "celikhan/events",
-      resource_type: "auto",
+    // Eğer bir dosya yüklenmişse, Cloudinary'ye yükle
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "celikhan/events",
+        resource_type: "auto",
+      });
+
+      imageUrl = result.secure_url;
+
+      // Sunucudaki geçici dosyayı sil
+      fs.unlinkSync(req.file.path);
+    }
+
+    // Base64 kodlanmış resimleri bul ve Cloudinary'ye yükle
+    const base64Regex = /<img\s+[^>]*src=["'](data:image\/[^;]+;base64,([^"']+))["']/g;
+    let match;
+    while ((match = base64Regex.exec(description)) !== null) {
+      const base64Data = match[2]; // Base64 verisi
+      const mimeType = match[1].split(";")[0].split(":")[1]; // image/png veya image/jpeg gibi
+
+      // Cloudinary'ye yükle
+      const uploadResult = await cloudinary.uploader.upload(`data:${mimeType};base64,${base64Data}`, {
+        folder: "celikhan/events",
+        resource_type: "image",
+      });
+
+      // Base64 verisini Cloudinary URL'si ile değiştir
+      description = description.replace(match[1], uploadResult.secure_url);
+    }
+
+    // **Cheerio ile <img> etiketlerini düzenle**
+    const $ = cheerio.load(description);
+    $("img").each(function () {
+      $(this).attr("style", "max-width:100%; height:auto; border-radius:8px; display:block; margin:1rem auto;");
     });
 
-    imageUrl = result.secure_url;
-
-    fs.unlinkSync(req.file.path);
+    // Güncellenmiş HTML'yi al
+    description = $.html();
 
     // Veritabanına kaydet
     const news = await News.create({
       title: req.body.title,
-      description: req.body.description,
+      description: description, // Güncellenmiş HTML
       category: req.body.category,
       imageUrl: imageUrl,
       isFeatured: req.body.isFeatured === "true",
@@ -96,6 +123,54 @@ exports.getNewsByCategory = async (req, res) => {
       status: "success",
       count: news.length,
       news,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      error: error.message,
+    });
+  }
+};
+exports.getRelatedNews = async (req, res) => {
+  try {
+    const currentNewsId = req.params.id;
+
+    // Önce mevcut haberi bul
+    const currentNews = await News.findById(currentNewsId);
+
+    if (!currentNews) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Haber bulunamadı",
+      });
+    }
+
+    // Aynı kategorideki diğer haberleri bul, ancak mevcut haberi hariç tut
+    // Sadece 3 tane getir ve createdAt'e göre sırala
+    const relatedNews = await News.find({
+      category: currentNews.category,
+      _id: { $ne: currentNewsId } // mevcut haberi hariç tut
+    })
+      .sort("-createdAt")
+      .limit(3);
+
+    // Eğer yeterli sayıda benzer haber bulunamazsa, farklı kategorilerden de haber getir
+    if (relatedNews.length < 3) {
+      const additionalNews = await News.find({
+        _id: { $ne: currentNewsId },
+        category: { $ne: currentNews.category }
+      })
+        .sort("-createdAt")
+        .limit(3 - relatedNews.length);
+
+      // İki sonuç kümesini birleştir
+      relatedNews.push(...additionalNews);
+    }
+
+    res.status(200).json({
+      status: "success",
+      count: relatedNews.length,
+      relatedNews,
     });
   } catch (error) {
     res.status(500).json({

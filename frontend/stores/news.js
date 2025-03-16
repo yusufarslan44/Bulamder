@@ -4,7 +4,9 @@ import { defineStore } from "pinia";
 export const useNewsStore = defineStore("news", {
   state: () => ({
     news: [],
+    detailNews: [],
     upcomingNews: [],
+    relatedNews: [],
     loading: false,
     error: null,
   }),
@@ -19,6 +21,38 @@ export const useNewsStore = defineStore("news", {
         console.log("fecht news response", response);
         this.news = response.news;
         console.log("news", this.news);
+      } catch (error) {
+        console.error("Etkinlikler yüklenirken hata:", error);
+        this.error = "Etkinlikler yüklenirken bir hata oluştu";
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async fetchNewsById(id) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await $fetch(`http://localhost:5000/api/news/` + id);
+        console.log("fecht news detail response", response);
+        this.detailNews = response.news;
+        return this.detailNews;
+      } catch (error) {
+        console.error("Etkinlik yüklenirken hata:", error);
+        this.error = "Etkinlik yüklenirken bir hata oluştu";
+      } finally {
+        this.loading = false;
+      }
+    },
+    async fetchRelatedNews(id) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await $fetch(`http://localhost:5000/api/news/related/` + id);
+        console.log("fecht related response", response);
+        this.relatedNews = response.relatedNews;
+        console.log("relatedNews", this.relatedNews);
+        return this.relatedNews;
       } catch (error) {
         console.error("Etkinlikler yüklenirken hata:", error);
         this.error = "Etkinlikler yüklenirken bir hata oluştu";

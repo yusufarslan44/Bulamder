@@ -60,12 +60,13 @@
                                         <v-img :src="haber.imageUrl" height="200" cover></v-img>
                                         <v-card-item>
                                             <v-chip color="primary" size="small" class="mb-2">{{ haber.category
-                                                }}</v-chip>
+                                            }}</v-chip>
                                             <v-card-title class="text-h6 font-weight-bold">
                                                 {{ haber.title }}
                                             </v-card-title>
-                                            <v-card-text class="text-body-2">
-                                                {{ haber.description }}
+                                            <v-card-text class="text-body-2"
+                                                v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
+
                                             </v-card-text>
                                             <div class="d-flex justify-space-between align-center">
                                                 <span class="text-caption text-grey">{{ haber.date }}</span>

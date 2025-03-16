@@ -14,7 +14,8 @@
                     <v-text-field v-model="newsForm.title" label="Başlık" required></v-text-field>
                     <div class="my-2" style="border: 2px solid #ccc;">
                         <client-only>
-                            <QuillEditor v-model:content="newsForm.description" content-type="html" theme="snow" />
+                            <QuillEditor ref="quillEditor" v-model:content="newsForm.description" content-type="html"
+                                theme="snow" :toolbar="customToolbar" />
                         </client-only>
                     </div>
                     <v-file-input v-model="newsForm.image" label="Haber Görseli" accept="image/*"
@@ -132,7 +133,7 @@ const newsStore = useNewsStore()
 const newsDialog = ref(false)
 const editNewsDialog = ref(false)
 const selectedNews = ref(null)
-
+const quillEditor = ref(null)
 const categories = ["Genel", "Spor", "Teknoloji", "Eğitim", "Kültür-Sanat", "Bilim"];
 
 
@@ -149,7 +150,42 @@ const editNewsForm = ref({
     description: '',
     image: null
 })
+const customToolbar = [
+    [{ header: [1, 2, false] }],
+    ['bold', 'italic', 'underline'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['image'], // 📌 Quill’in varsayılan resim butonu
+    [{ align: [] }],
+    ['clean']
+]
+// 📌 Quill'e resim ekleme fonksiyonu
+const insertImageToQuill = (imageUrl) => {
+    if (quillEditor.value) {
+        const editor = quillEditor.value.getQuill()
+        const range = editor.getSelection()
+        editor.insertEmbed(range.index, 'image', imageUrl)
+    }
+}
 
+const handleImageUpload = () => {
+    const input = document.createElement('input')
+    input.setAttribute('type', 'file')
+    input.setAttribute('accept', 'image/*')
+
+    input.addEventListener('change', async () => {
+        const file = input.files[0]
+        if (!file) return
+
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+
+        reader.onload = () => {
+            insertImageToQuill(reader.result)
+        }
+    })
+
+    input.click()
+}
 const handleNewsCreate = async () => {
     try {
         if (!newsForm.value.title || !newsForm.value.description || !newsForm.value.image) {
@@ -233,6 +269,7 @@ const handleNewsUpdate = async () => {
 
 onMounted(() => {
     newsStore.fetchNews()
+
 })
 </script>
 

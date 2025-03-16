@@ -24,13 +24,15 @@
                                 <h2 class="text-h4 font-weight-bold mb-4">
                                     {{ featuredNews.title }}
                                 </h2>
-                                <p class="text-body-1 mb-6">
-                                    {{ featuredNews.description }}
+                                <p class="text-body-1 mb-6" v-html="featuredNews.description.slice(0, 100)">
+
                                 </p>
                                 <div class="d-flex align-center justify-space-between">
                                     <span class="text-caption">{{ featuredNews.date }}</span>
                                     <v-btn color="primary">
-                                        Devamını Oku
+                                        <NuxtLink class="gundem-link text-white" :to="`/gundem/${featuredNews._id}`">
+                                            Devamını
+                                            Oku </NuxtLink>
                                     </v-btn>
                                 </div>
                             </div>
@@ -51,11 +53,14 @@
                             {{ haber.title }}
                         </v-card-title>
                         <v-card-text>
-                            <p class="text-body-2 mb-4">{{ haber.description }}</p>
+                            <p class="text-body-2 mb-4"
+                                v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
+                            </p>
                             <div class="d-flex align-center justify-space-between">
                                 <span class="text-caption">{{ haber.date }}</span>
                                 <v-btn variant="text" color="primary" density="comfortable">
-                                    Devamını Oku
+                                    <NuxtLink class="gundem-link text-green" :to="`/gundem/${haber._id}`"> Devamını
+                                        Oku </NuxtLink>
                                     <v-icon end icon="mdi-arrow-right"></v-icon>
                                 </v-btn>
                             </div>
@@ -75,19 +80,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useNewsStore } from '@/stores/news' // Ensure this import matches your actual store path
 
 const currentPage = ref(1)
 const newsStore = useNewsStore()
 
-// Get all news
 const news = computed(() => newsStore.getNews)
 
-// Get the latest news for the featured section
+
 const featuredNews = computed(() => {
     if (news.value && news.value.length > 0) {
-        // Assuming the news array is sorted with the newest item first
+
         return news.value[0]
     }
     return null
@@ -114,5 +116,9 @@ onMounted(async () => {
 
 .v-card:hover {
     transform: translateY(-5px);
+}
+
+.gundem-link {
+    text-decoration: none;
 }
 </style>
