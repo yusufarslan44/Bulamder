@@ -13,6 +13,10 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  endDate: {
+    type: Date,
+    required: true
+  },
   location: {
     type: String,
     required: true
@@ -46,7 +50,7 @@ const eventSchema = new mongoose.Schema({
 });
 
 // Güncelleme zamanını otomatik güncelle
-eventSchema.pre('save', function(next) {
+eventSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });

@@ -5,17 +5,14 @@ const cloudinary = require('../config/cloudinary');
 exports.createEvent = async (req, res) => {
   try {
     console.log("gelen request", req.body);
+    console.log("Yüklenen dosya:", req.file);
     let imageUrl = '';
 
     if (req.file) {
-      // Resmi base64 formatına çevir
-      const b64 = Buffer.from(req.file.buffer).toString('base64');
-      let dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
-
-      // Cloudinary'ye yükle
-      const result = await cloudinary.uploader.upload(dataURI, {
-        folder: 'celikhan/events',
-        resource_type: 'auto'
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        use_filename: true,
+        folder: "celikhan/events",
+        resource_type: "auto",
       });
 
       imageUrl = result.secure_url;
@@ -25,6 +22,7 @@ exports.createEvent = async (req, res) => {
       title: req.body.title,
       description: req.body.description,
       date: new Date(req.body.date),
+      endDate: new Date(req.body.endDate),
       location: req.body.location,
       imageUrl: imageUrl,
       program: req.body.program

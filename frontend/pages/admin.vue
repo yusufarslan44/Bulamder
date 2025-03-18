@@ -156,12 +156,12 @@ const menuItems = [
     {
         title: 'Haber Yönetimi',
         value: 'news',
-        icon: 'mdi-newspaper'
+        icon: 'mdi-events'
     }
 ]
 
 // Genel state
-const currentSection = ref('news')
+const currentSection = ref('events')
 
 // Computed properties
 const getCurrentSectionTitle = computed(() => {

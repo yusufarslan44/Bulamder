@@ -15,7 +15,7 @@ exports.createNews = async (req, res) => {
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         use_filename: true,
-        folder: "celikhan/events",
+        folder: "celikhan/news",
         resource_type: "auto",
       });
 
@@ -34,7 +34,7 @@ exports.createNews = async (req, res) => {
 
       // Cloudinary'ye yükle
       const uploadResult = await cloudinary.uploader.upload(`data:${mimeType};base64,${base64Data}`, {
-        folder: "celikhan/events",
+        folder: "celikhan/news",
         resource_type: "image",
       });
 
@@ -213,14 +213,14 @@ exports.updateNews = async (req, res) => {
       // Eski resmi cloudinary'den sil
       if (news.imageUrl) {
         const publicId = news.imageUrl.split("/").pop().split(".")[0]; // URL’den dosya adını al
-        await cloudinary.uploader.destroy(`celikhan/events/${publicId}`); // Silme işlemi
+        await cloudinary.uploader.destroy(`celikhan/news/${publicId}`); // Silme işlemi
       }
 
 
       // Yeni resmi yükle
       const result = await cloudinary.uploader.upload(req.file.path, {
         use_filename: true,
-        folder: "celikhan/events",
+        folder: "celikhan/news",
         resource_type: "auto",
       });
 
@@ -272,7 +272,7 @@ exports.deleteNews = async (req, res) => {
     // Cloudinary'den resmi sil
     if (news.imageUrl) {
       const publicId = news.imageUrl.split("/").pop().split(".")[0]; // URL’den dosya adını al
-      await cloudinary.uploader.destroy(`celikhan/events/${publicId}`); // Silme işlemi
+      await cloudinary.uploader.destroy(`celikhan/news/${publicId}`); // Silme işlemi
     }
 
 

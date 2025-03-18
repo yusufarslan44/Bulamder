@@ -15,6 +15,9 @@
 
                     <v-text-field v-model="eventForm.date" label="Tarih" type="date" required></v-text-field>
 
+                    <v-text-field v-model="eventForm.endDate" label="Bitiş Tarihi" type="date" required></v-text-field>
+
+
                     <v-text-field v-model="eventForm.location" label="Konum" required></v-text-field>
 
                     <v-file-input v-model="eventForm.image" label="Etkinlik Görseli" accept="image/*"
@@ -40,6 +43,7 @@
                             <th>Görsel</th>
                             <th>Başlık</th>
                             <th>Tarih</th>
+                            <th>Bitiş Tarihi</th>
                             <th>Konum</th>
                             <th>İşlemler</th>
                         </tr>
@@ -51,6 +55,7 @@
                             </td>
                             <td>{{ event.title }}</td>
                             <td>{{ new Date(event.date).toLocaleDateString('tr-TR') }}</td>
+                            <td>{{ new Date(event.endDate).toLocaleDateString('tr-TR') }}</td>
                             <td>{{ event.location }}</td>
                             <td>
                                 <v-btn icon="mdi-eye" color="info" variant="text" class="mr-2"
@@ -80,6 +85,9 @@
                             </template>
                             <v-list-item-title>
                                 {{ new Date(selectedEvent.date).toLocaleDateString('tr-TR') }}
+                            </v-list-item-title>
+                            <v-list-item-title>
+                                {{ new Date(selectedEvent.endDate).toLocaleDateString('tr-TR') }}
                             </v-list-item-title>
                         </v-list-item>
                         <v-list-item>
@@ -112,6 +120,8 @@
                         <v-textarea v-model="editEventForm.description" label="Açıklama" required></v-textarea>
 
                         <v-text-field v-model="editEventForm.date" label="Tarih" type="date" required></v-text-field>
+                        <v-text-field v-model="editEventForm.endDate" label="Bitiş Tarihi" type="date"
+                            required></v-text-field>
 
                         <v-text-field v-model="editEventForm.location" label="Konum" required></v-text-field>
 
@@ -146,6 +156,7 @@ const eventForm = ref({
     title: '',
     description: '',
     date: '',
+    endDate: '',
     location: '',
     image: null
 })
@@ -154,6 +165,7 @@ const editEventForm = ref({
     title: '',
     description: '',
     date: '',
+    endDate: '',
     location: '',
     image: null
 })
@@ -163,8 +175,9 @@ const handleEventCreate = async () => {
     formData.append('title', eventForm.value.title)
     formData.append('description', eventForm.value.description)
     formData.append('date', eventForm.value.date)
+    formData.append('endDate', eventForm.value.endDate)
     formData.append('location', eventForm.value.location)
-    formData.append('image', eventForm.value.image)
+    formData.append('image', eventForm.value.image[0] || eventForm.value.image);
 
     const result = await eventStore.createEvent(formData)
     if (result.success) {
@@ -173,6 +186,7 @@ const handleEventCreate = async () => {
             title: '',
             description: '',
             date: '',
+            endDate: '',
             location: '',
             image: null
         }
@@ -196,6 +210,7 @@ const openEventEdit = (event) => {
         title: event.title,
         description: event.description,
         date: new Date(event.date).toISOString().split('T')[0],
+        endDate: new Date(event.endDate).toISOString().split('T')[0],
         location: event.location,
         image: null
     }
@@ -207,9 +222,10 @@ const handleEventUpdate = async () => {
     formData.append('title', editEventForm.value.title)
     formData.append('description', editEventForm.value.description)
     formData.append('date', editEventForm.value.date)
+    formData.append('endDate', editEventForm.value.endDate)
     formData.append('location', editEventForm.value.location)
     if (editEventForm.value.image) {
-        formData.append('image', editEventForm.value.image)
+        formData.append('image', editEventForm.value.image[0] || editEventForm.value.image);
     }
 
     const result = await eventStore.updateEvent(selectedEvent.value._id, formData)
