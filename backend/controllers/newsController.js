@@ -14,6 +14,7 @@ exports.createNews = async (req, res) => {
     // Eğer bir dosya yüklenmişse, Cloudinary'ye yükle
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
+        use_filename: true,
         folder: "celikhan/events",
         resource_type: "auto",
       });
@@ -200,6 +201,7 @@ exports.updateNews = async (req, res) => {
   try {
     let news = await News.findById(req.params.id);
 
+
     if (!news) {
       return res.status(404).json({
         status: "fail",
@@ -209,19 +211,23 @@ exports.updateNews = async (req, res) => {
 
     if (req.file) {
       // Eski resmi cloudinary'den sil
-      await cloudinary.uploader.destroy(news.imageUrl);
+      if (news.imageUrl) {
+        const publicId = news.imageUrl.split("/").pop().split(".")[0]; // URL’den dosya adını al
+        await cloudinary.uploader.destroy(`celikhan/events/${publicId}`); // Silme işlemi
+      }
+
 
       // Yeni resmi yükle
       const result = await cloudinary.uploader.upload(req.file.path, {
         use_filename: true,
-        folder: "news",
+        folder: "celikhan/events",
+        resource_type: "auto",
       });
 
       // Geçici dosyayı sil
       fs.unlinkSync(req.file.path);
 
-      news.image = result.secure_url;
-      news.imageUrl = result.public_id;
+      news.imageUrl = result.secure_url;
     }
 
     // Eğer haber öne çıkarılacaksa, diğer öne çıkan haberi kaldır
@@ -253,6 +259,7 @@ exports.updateNews = async (req, res) => {
 
 exports.deleteNews = async (req, res) => {
   try {
+    console.log("req params", req.params);
     const news = await News.findById(req.params.id);
 
     if (!news) {
@@ -263,7 +270,11 @@ exports.deleteNews = async (req, res) => {
     }
 
     // Cloudinary'den resmi sil
-    await cloudinary.uploader.destroy(news.imageUrl);
+    if (news.imageUrl) {
+      const publicId = news.imageUrl.split("/").pop().split(".")[0]; // URL’den dosya adını al
+      await cloudinary.uploader.destroy(`celikhan/events/${publicId}`); // Silme işlemi
+    }
+
 
     // Veritabanından haberi sil
     await News.findByIdAndDelete(req.params.id);

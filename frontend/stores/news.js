@@ -99,12 +99,12 @@ export const useNewsStore = defineStore("news", {
     },
 
     // Etkinlik güncelle
-    async updateEvent(eventId, formData) {
+    async updateNews(newsId, formData) {
       this.loading = true;
       this.error = null;
       try {
         const response = await fetch(
-          `http://localhost:5000/api/events/${eventId}`,
+          `http://localhost:5000/api/news/${newsId}`,
           {
             method: "PUT",
             body: formData,
@@ -113,9 +113,9 @@ export const useNewsStore = defineStore("news", {
         const data = await response.json();
         if (response.ok) {
           // Güncellenen etkinliği listede güncelle
-          const index = this.events.findIndex((event) => event._id === eventId);
+          const index = this.news.findIndex((news) => news._id === newsId);
           if (index !== -1) {
-            this.events[index] = data.event;
+            this.news[index] = data.news;
           }
           return { success: true, message: "Etkinlik başarıyla güncellendi" };
         } else {
@@ -131,19 +131,19 @@ export const useNewsStore = defineStore("news", {
     },
 
     // Etkinlik sil
-    async deleteEvent(eventId) {
+    async deleteNews(newsId) {
       this.loading = true;
       this.error = null;
       try {
         const response = await fetch(
-          `http://localhost:5000/api/events/${eventId}`,
+          `http://localhost:5000/api/news/${newsId}`,
           {
             method: "DELETE",
           }
         );
         if (response.ok) {
           // Silinen etkinliği listeden kaldır
-          this.events = this.events.filter((event) => event._id !== eventId);
+          this.news = this.news.filter((news) => news._id !== newsId);
           return { success: true, message: "Etkinlik başarıyla silindi" };
         } else {
           const data = await response.json();

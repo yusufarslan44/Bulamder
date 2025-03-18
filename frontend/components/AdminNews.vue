@@ -75,7 +75,7 @@
                 <v-img :src="selectedNews.imageUrl" height="300" cover></v-img>
                 <v-card-title>{{ selectedNews.title }}</v-card-title>
                 <v-card-text>
-                    <p class="text-body-1">{{ selectedNews.description }}</p>
+                    <p class="text-body-1" v-html="selectedNews.description"></p>
                     <v-list>
                         <v-list-item>
                             <template v-slot:prepend>
@@ -104,7 +104,12 @@
                     <v-form @submit.prevent="handleNewsUpdate">
                         <v-text-field v-model="editNewsForm.title" label="Başlık" required></v-text-field>
 
-                        <v-textarea v-model="editNewsForm.description" label="Haber İçeriği" required></v-textarea>
+                        <div class="my-2" style="border: 2px solid #ccc;">
+                            <client-only>
+                                <QuillEditor ref="quillEditor" v-model:content="editNewsForm.description"
+                                    content-type="html" theme="snow" :toolbar="customToolbar" />
+                            </client-only>
+                        </div>
 
                         <v-file-input v-model="editNewsForm.image" label="Yeni Görsel (İsteğe Bağlı)"
                             accept="image/*"></v-file-input>
@@ -258,7 +263,7 @@ const handleNewsUpdate = async () => {
     formData.append('title', editNewsForm.value.title)
     formData.append('description', editNewsForm.value.description)
     if (editNewsForm.value.image) {
-        formData.append('image', editNewsForm.value.image)
+        formData.append('image', editNewsForm.value.image[0] || editNewsForm.value.image)
     }
 
     const result = await newsStore.updateNews(selectedNews.value._id, formData)

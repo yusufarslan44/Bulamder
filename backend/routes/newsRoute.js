@@ -9,11 +9,13 @@ router
   .post(upload.single("image"), newsController.createNews)
   .get(newsController.getAllNews);
 
+
 router
   .route("/:id")
   .get(newsController.getNews)
-//   // .put(newsController.updateNews)
-//   // .delete(newsController.deleteNews);
+  //   // .put(newsController.updateNews)
+  .put(upload.single("image"), newsController.updateNews)
+  .delete(newsController.deleteNews);
 router
   .route('/related/:id')
   .get(newsController.getRelatedNews);
