@@ -120,6 +120,7 @@
                         <v-textarea v-model="editEventForm.description" label="Açıklama" required></v-textarea>
 
                         <v-text-field v-model="editEventForm.date" label="Tarih" type="date" required></v-text-field>
+
                         <v-text-field v-model="editEventForm.endDate" label="Bitiş Tarihi" type="date"
                             required></v-text-field>
 
@@ -217,6 +218,7 @@ const openEventEdit = (event) => {
     editEventDialog.value = true
 }
 
+
 const handleEventUpdate = async () => {
     const formData = new FormData()
     formData.append('title', editEventForm.value.title)
@@ -224,12 +226,29 @@ const handleEventUpdate = async () => {
     formData.append('date', editEventForm.value.date)
     formData.append('endDate', editEventForm.value.endDate)
     formData.append('location', editEventForm.value.location)
+
+    // Resim varsa ekle
     if (editEventForm.value.image) {
-        formData.append('image', editEventForm.value.image[0] || editEventForm.value.image);
+        // Eğer bir dosya nesnesi ise
+        if (editEventForm.value.image instanceof File) {
+            formData.append('image', editEventForm.value.image);
+        }
+        // Eğer FileList ise
+        else if (editEventForm.value.image[0] instanceof File) {
+            formData.append('image', editEventForm.value.image[0]);
+        }
     }
 
     const result = await eventStore.updateEvent(selectedEvent.value._id, formData)
     if (result.success) {
+        eventForm.value = {
+            title: '',
+            description: '',
+            date: '',
+            endDate: '',
+            location: '',
+            image: null
+        }
         editEventDialog.value = false
     }
 }

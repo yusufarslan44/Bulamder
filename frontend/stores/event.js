@@ -14,10 +14,8 @@ export const useEventStore = defineStore('event', {
             this.loading = true
             this.error = null
             try {
-                const response = await $fetch('http://localhost:5000/api/events')
-                console.log("fecht events response", response);
-                this.events = response
-                console.log("events", this.events);
+                const data = await $fetch('http://localhost:5000/api/events')
+                this.events = data || []
             } catch (error) {
                 console.error('Etkinlikler yüklenirken hata:', error)
                 this.error = 'Etkinlikler yüklenirken bir hata oluştu'
@@ -31,9 +29,10 @@ export const useEventStore = defineStore('event', {
             this.loading = true
             this.error = null
             try {
-                const response = await fetch('http://localhost:5000/api/events/upcoming')
-                const data = await response.json()
-                this.upcomingEvents = data
+                const { data } = await useAsyncData('upcomingEvents', () =>
+                    $fetch('http://localhost:5000/api/events/upcoming')
+                )
+                this.upcomingEvents = data.value || []
             } catch (error) {
                 console.error('Yaklaşan etkinlikler yüklenirken hata:', error)
                 this.error = 'Yaklaşan etkinlikler yüklenirken bir hata oluştu'
@@ -46,19 +45,19 @@ export const useEventStore = defineStore('event', {
         async createEvent(formData) {
             this.loading = true
             this.error = null
+            console.log("çalıştı1 ");
             try {
-                const response = await fetch('http://localhost:5000/api/events', {
+                const response = await $fetch('http://localhost:5000/api/events', {
                     method: 'POST',
                     body: formData
                 })
-                const data = await response.json()
-                if (response.ok) {
-                    // Yeni etkinliği listeye ekle
-                    this.events.unshift(data.event)
-                    return { success: true, message: 'Etkinlik başarıyla oluşturuldu' }
-                } else {
-                    throw new Error(data.message)
-                }
+                console.log("response ", response);
+
+                // Eğer response.events dizisi varsa, her bir öğeyi events dizisine ekleyelim
+                this.events.push(response.event) // Spread operator ile ekliyoruz
+                return { success: true, message: 'Etkinlik başarıyla oluşturuldu' }
+
+
             } catch (error) {
                 console.error('Etkinlik oluşturulurken hata:', error)
                 this.error = 'Etkinlik oluşturulurken bir hata oluştu'
@@ -72,47 +71,48 @@ export const useEventStore = defineStore('event', {
         async updateEvent(eventId, formData) {
             this.loading = true
             this.error = null
+            console.log("event id", eventId);
             try {
-                const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
+                const response = await $fetch(`http://localhost:5000/api/events/${eventId}`, {
                     method: 'PUT',
                     body: formData
                 })
-                const data = await response.json()
-                if (response.ok) {
-                    // Güncellenen etkinliği listede güncelle
-                    const index = this.events.findIndex(event => event._id === eventId)
-                    if (index !== -1) {
-                        this.events[index] = data.event
-                    }
-                    return { success: true, message: 'Etkinlik başarıyla güncellendi' }
-                } else {
-                    throw new Error(data.message)
+                console.log("response ", response);
+                const index = this.events.findIndex(event => event._id === eventId)
+                if (index !== -1) {
+                    // response.event'i kullanarak güncelle
+                    this.events[index] = response.event
+                }
+
+                return {
+                    success: true,
+                    message: 'Etkinlik başarıyla güncellendi'
                 }
             } catch (error) {
                 console.error('Etkinlik güncellenirken hata:', error)
-                this.error = 'Etkinlik güncellenirken bir hata oluştu'
-                return { success: false, message: this.error }
+                this.error = error.message || 'Etkinlik güncellenirken bir hata oluştu'
+                return {
+                    success: false,
+                    message: this.error
+                }
             } finally {
                 this.loading = false
             }
         },
-
         // Etkinlik sil
         async deleteEvent(eventId) {
             this.loading = true
             this.error = null
             try {
-                const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
+                const response = await $fetch(`http://localhost:5000/api/events/${eventId}`, {
                     method: 'DELETE'
                 })
-                if (response.ok) {
-                    // Silinen etkinliği listeden kaldır
+
+                if (response.success) {
                     this.events = this.events.filter(event => event._id !== eventId)
                     return { success: true, message: 'Etkinlik başarıyla silindi' }
-                } else {
-                    const data = await response.json()
-                    throw new Error(data.message)
                 }
+                throw new Error('Etkinlik silme başarısız')
             } catch (error) {
                 console.error('Etkinlik silinirken hata:', error)
                 this.error = 'Etkinlik silinirken bir hata oluştu'
@@ -124,16 +124,9 @@ export const useEventStore = defineStore('event', {
     },
 
     getters: {
-        // Tüm etkinlikleri getir
         getEvents: (state) => state.events,
-
-        // Yaklaşan etkinlikleri getir
         getUpcomingEvents: (state) => state.upcomingEvents,
-
-        // Yükleniyor durumunu getir
         isLoading: (state) => state.loading,
-
-        // Hata durumunu getir
         getError: (state) => state.error
     }
-}) 
+})

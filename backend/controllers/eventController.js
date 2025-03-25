@@ -1,6 +1,6 @@
 const Event = require('../models/Event');
 const cloudinary = require('../config/cloudinary');
-
+const fs = require("fs");
 // Etkinlik oluştur
 exports.createEvent = async (req, res) => {
   try {
@@ -17,7 +17,7 @@ exports.createEvent = async (req, res) => {
 
       imageUrl = result.secure_url;
     }
-
+    fs.unlinkSync(req.file.path);
     const event = new Event({
       title: req.body.title,
       description: req.body.description,
@@ -68,28 +68,52 @@ exports.updateEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
+      // Eğer dosya yüklendiyse local dosyayı sil
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(404).json({ message: 'Etkinlik bulunamadı' });
     }
 
+    // Yeni resim yüklendiyse
     if (req.file) {
-      // Eski resmi Cloudinary'den sil
-      if (event.imageUrl) {
-        const publicId = event.imageUrl.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy('celikhan/events/' + publicId);
+      try {
+        // Eski resmi Cloudinary'den sil
+        if (event.imageUrl) {
+          const publicId = event.imageUrl.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy('celikhan/events/' + publicId);
+        }
+
+        // Yeni resmi Cloudinary'e yükle
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'celikhan/events',
+          resource_type: 'auto'
+        });
+
+        // Cloudinary'e yüklendikten sonra local dosyayı sil
+        fs.unlinkSync(req.file.path);
+
+        // Yeni resim URL'sini güncelle
+        req.body.imageUrl = result.secure_url;
+      } catch (uploadError) {
+        // Cloudinary yüklemesi başarısız olursa local dosyayı sil
+        fs.unlinkSync(req.file.path);
+        throw uploadError;
       }
-
-      // Yeni resmi yükle
-      const b64 = Buffer.from(req.file.buffer).toString('base64');
-      let dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
-      const result = await cloudinary.uploader.upload(dataURI, {
-        folder: 'celikhan/events',
-        resource_type: 'auto'
-      });
-
-      req.body.imageUrl = result.secure_url;
     }
 
-    Object.assign(event, req.body);
+    // Gelen body'den sadece izin verilen alanları al
+    const updateFields = {
+      title: req.body.title,
+      description: req.body.description,
+      date: req.body.date,
+      endDate: req.body.endDate,
+      location: req.body.location,
+      imageUrl: req.body.imageUrl || event.imageUrl
+    }
+
+    // Etkinliği güncelle
+    Object.assign(event, updateFields);
     await event.save();
 
     res.json({
@@ -97,7 +121,11 @@ exports.updateEvent = async (req, res) => {
       event
     });
   } catch (error) {
-    res.status(500).json({ message: 'Etkinlik güncellenirken bir hata oluştu' });
+    console.error('Etkinlik güncelleme hatası:', error);
+    res.status(500).json({
+      message: 'Etkinlik güncellenirken bir hata oluştu',
+      error: error.message
+    });
   }
 };
 
