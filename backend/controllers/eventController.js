@@ -131,6 +131,8 @@ exports.updateEvent = async (req, res) => {
 
 // Etkinlik sil
 exports.deleteEvent = async (req, res) => {
+  console.log("delete çalıştı");
+  console.log("req body", req.params.id);
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {

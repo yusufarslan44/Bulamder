@@ -107,8 +107,8 @@ export const useEventStore = defineStore('event', {
                 const response = await $fetch(`http://localhost:5000/api/events/${eventId}`, {
                     method: 'DELETE'
                 })
-
-                if (response.success) {
+                console.log("response  delete", response);
+                if (response.message === "Etkinlik başarıyla silindi") {
                     this.events = this.events.filter(event => event._id !== eventId)
                     return { success: true, message: 'Etkinlik başarıyla silindi' }
                 }
