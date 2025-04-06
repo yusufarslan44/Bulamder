@@ -1,41 +1,42 @@
 const Admin = require("../models/Admin");
 
-// const { checkValidationErrors } = require("../utils");
+const { checkValidationErrors } = require("../utils");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// const register = async (req, res) => {
-//     try {
-//         const { email } = req.body
+const register = async (req, res) => {
+    console.log("req body", req.body);
+    try {
+        const { email } = req.body
 
-//         const emailExist = await User.findOne({ email })
-//         if (emailExist) {
-//             return res.status(400).json({ error: 'The Email is already exist' })
-//         }
+        const emailExist = await Admin.findOne({ email })
+        if (emailExist) {
+            return res.status(400).json({ error: 'The Email is already exist' })
+        }
 
-//         const user = await User.create(req.body)
+        const user = await Admin.create(req.body)
 
-//         user.password = undefined
-//         return res
-//             .status(201)
-//             .json({ message: 'User created succesfully', user: user })
+        user.password = undefined
+        return res
+            .status(201)
+            .json({ message: 'Admin kaydı oluşturuldu. Onay bekleniyor.', user: user })
 
-//     } catch (error) {
-//         //Handle mongoose validation error
-//         if (error.name === 'ValidationError') {
-//             if (checkValidationErrors(error, res)) return
-//         } else {
-//             console.error("Erorr at register", error)
-//             return res.status(500).json({ error: 'Internal Server error' })
-//         }
-//     }
-// }
+    } catch (error) {
+        //Handle mongoose validation error
+        if (error.name === 'ValidationError') {
+            if (checkValidationErrors(error, res)) return
+        } else {
+            console.error("Erorr at register", error)
+            return res.status(500).json({ error: 'Internal Server error' })
+        }
+    }
+}
 // const login = async (req, res) => {
 //     try {
 //         const { email, password } = req.body
-//         const user = await User.findOne({ email })
+//         const user = await Admin.findOne({ email })
 //         if (!user) {
-//             return res.status(404).json({ error: 'The User not found' })
+//             return res.status(404).json({ error: 'The Admin not found' })
 //         }
 //         const isValidPassword = await bcrypt.compare(password, user.password)
 //         if (!isValidPassword) {
@@ -50,7 +51,7 @@ const jwt = require('jsonwebtoken');
 //         user.password = undefined
 //         return res
 //             .status(200)
-//             .json({ message: 'User logged in successfully', user, token })
+//             .json({ message: 'Admin logged in successfully', user, token })
 //     } catch (error) {
 //         console.error("Erorr at login", error)
 //         return res.status(500).json({ error: 'Internal Server error' })
@@ -78,13 +79,33 @@ const login = async (req, res) => {
     res.json({ message: 'Giriş başarılı' });
 };
 
+const approveAdmin = async (req, res) => {
+    const { action, approvedBy } = req.body; // action: 'approve' | 'reject'
+    const { id } = req.params;
 
+    try {
+        const admin = await Admin.findById(id);
+        if (!admin) return res.status(404).json({ message: 'Admin bulunamadı' });
+
+        admin.status = action === 'approve' ? 'approved' : 'rejected';
+        admin.approvedBy = approvedBy;
+        await admin.save();
+
+        // E-posta bildirimi gönder (aşağıda detay)
+        await sendStatusEmail(admin.email, admin.status);
+
+        res.json({ message: `Admin ${action === 'approve' ? 'onaylandı' : 'reddedildi'}` });
+    } catch (err) {
+        res.status(500).json({ message: 'Hata', error: err.message });
+    }
+}
 // const getProtectedData = (req, res) => {
 //     res.json({ message: 'Protected data', user: req.user });
 // };
 
 module.exports = {
-
+    register,
     login,
+    approveAdmin
     // getProtectedData,
 }

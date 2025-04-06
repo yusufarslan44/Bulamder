@@ -1,10 +1,15 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const adminSchema = new mongoose.Schema({
-  username: {
+  firstName: {
     type: String,
     required: true,
     unique: true
+  },
+  lastName: {
+    type: String,
+    required: true
   },
   password: {
     type: String,
@@ -15,14 +20,19 @@ const adminSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  fullName: {
+  status: {
     type: String,
-    required: true
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
   },
-  role: {
-    type: String,
-    default: 'admin',
-    enum: ['admin', 'superadmin']
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+    default: null
+  },
+  emailSent: {
+    type: Boolean,
+    default: false
   },
   createdAt: {
     type: Date,

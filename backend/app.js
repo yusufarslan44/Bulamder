@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/photos", photoRoutes);
 app.use("/api/events", eventRoutes);
-app.use('/api/v1/auth', authRoute)
+app.use('/api/auth', authRoute)
 app.use("/api/news", newsRoute);
 app.use("/api/statistics", statisticRoutes);
 
