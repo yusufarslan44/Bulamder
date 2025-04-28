@@ -5,14 +5,18 @@
             <v-col cols="12" sm="8" md="6" lg="4">
                 <v-card elevation="4" class="pa-4">
                     <v-card-title class="text-h5 text-center">
-                        Hesabınıza Giriş Yapın
+                        Admin Girişi
                     </v-card-title>
 
                     <v-card-subtitle class="text-center">
-                        Hoş geldiniz! Lütfen bilgilerinizi girin
+                        Yönetici hesabınızla giriş yapın
                     </v-card-subtitle>
 
                     <v-card-text>
+                        <v-alert v-if="error" type="error" variant="tonal" class="mb-4">
+                            {{ error }}
+                        </v-alert>
+
                         <v-form ref="form" v-model="isFormValid" @submit.prevent="handleLogin">
                             <v-text-field v-model="email" :rules="emailRules" label="Email" prepend-icon="mdi-email"
                                 variant="outlined" required></v-text-field>
@@ -22,24 +26,15 @@
                                 :type="showPassword ? 'text' : 'password'" label="Şifre" prepend-icon="mdi-lock"
                                 variant="outlined" required @click:append="showPassword = !showPassword"></v-text-field>
 
-                            <div class="d-flex justify-space-between align-center mb-4">
-                                <v-checkbox v-model="rememberMe" label="Beni hatırla" color="primary"
-                                    hide-details></v-checkbox>
-
-                                <v-btn variant="text" color="primary" class="text-caption" to="/forgot-password">
-                                    Şifrenizi mi unuttunuz?
-                                </v-btn>
-                            </div>
-
                             <v-btn block color="primary" size="large" type="submit" :loading="isLoading"
-                                :disabled="!isFormValid">
+                                :disabled="!isFormValid" class="mt-4">
                                 Giriş Yap
                             </v-btn>
 
                             <div class="text-center mt-4">
                                 <span class="text-body-2">Hesabınız yok mu? </span>
                                 <v-btn variant="text" color="primary" class="text-caption" to="/register">
-                                    Hesap Oluştur
+                                    Başvuru Yap
                                 </v-btn>
                             </div>
                         </v-form>
@@ -51,11 +46,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '~/stores/auth'
 
-// Router
 const router = useRouter()
+const authStore = useAuthStore()
 
 // Form referansı
 const form = ref(null)
@@ -63,10 +59,10 @@ const form = ref(null)
 // Form state
 const isFormValid = ref(false)
 const isLoading = ref(false)
+const error = ref(null)
 const showPassword = ref(false)
 const email = ref('')
 const password = ref('')
-const rememberMe = ref(false)
 
 // Doğrulama kuralları
 const emailRules = [
@@ -79,7 +75,7 @@ const passwordRules = [
     v => v.length >= 6 || 'Şifre en az 6 karakter olmalıdır'
 ]
 
-// Giriş işlemi
+// Login işlemi
 const handleLogin = async () => {
     // Form doğrulamasını kontrol et
     const { valid } = await form.value.validate()
@@ -88,42 +84,22 @@ const handleLogin = async () => {
 
     // Yükleniyor durumunu aktifleştir
     isLoading.value = true
+    error.value = null
 
     try {
-        // API'ye giriş isteği gönder
-        // Burada gerçek API entegrasyonunuzu yapabilirsiniz
-        // Örnek: 
-        // const response = await fetch('/api/login', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({
-        //     email: email.value,
-        //     password: password.value,
-        //     rememberMe: rememberMe.value
-        //   })
-        // })
-        await useAuthStore().loginAuth(JSON.stringify({
+        // API'ye login isteği gönder
+        const result = await authStore.loginAuth({
             email: email.value,
             password: password.value
-        }))
-
-
-        console.log('Giriş denemesi:', {
-            email: email.value,
-            password: password.value,
-            rememberMe: rememberMe.value
         })
 
-        // Başarılı giriş sonrası yönlendirme
-        // Gerçek uygulamada API'den token alındıktan sonra yönlendirme yapılmalı
-        setTimeout(() => {
-            isLoading.value = false
-            router.push('/dashboard')
-        }, 1000)
-
-    } catch (error) {
-        // Hata işleme
-        console.error('Giriş hatası:', error)
+        if (result) {
+            // Başarılı giriş sonrası admin paneline yönlendir
+            router.push('/admin')
+        }
+    } catch (err) {
+        error.value = err.message || 'Giriş yapılırken bir hata oluştu'
+    } finally {
         isLoading.value = false
     }
 }

@@ -175,6 +175,7 @@ const handleRegister = async () => {
             email: email.value,
             password: password.value,
             reason: reason.value,
+            status: 'pending'
         }))
 
 
@@ -187,10 +188,22 @@ const handleRegister = async () => {
             status: 'pending'
         })
 
+
         // Başarılı kayıt sonrası mesaj göster
         setTimeout(() => {
             isLoading.value = false
             registrationSubmitted.value = true
+
+            // Form değerlerini sıfırla
+            firstName.value = ''
+            lastName.value = ''
+            email.value = ''
+            password.value = ''
+            confirmPassword.value = ''
+            reason.value = ''
+            agreeTerms.value = false
+            showPassword.value = false
+            showConfirmPassword.value = false
         }, 1000)
 
     } catch (error) {

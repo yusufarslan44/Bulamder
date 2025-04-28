@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { useAuthStore } from './auth'
 
 export const useGalleryStore = defineStore('gallery', {
     state: () => ({
@@ -13,8 +13,8 @@ export const useGalleryStore = defineStore('gallery', {
             try {
                 this.loading = true
                 // API endpoint'i buraya gelecek
-                const response = await axios.get(`API_URL/gallery${category !== 'all' ? `?category=${category}` : ''}`)
-                this.photos = response.data
+                const response = await $fetch(`API_URL/gallery${category !== 'all' ? `?category=${category}` : ''}`)
+                this.photos = response
             } catch (error) {
                 this.error = error.message
                 console.error('Fotoğraflar yüklenirken hata:', error)
@@ -26,6 +26,18 @@ export const useGalleryStore = defineStore('gallery', {
         async uploadPhoto(photoData) {
             try {
                 this.loading = true
+                
+                // Auth store'dan token'ı al
+                const authStore = useAuthStore();
+                if (!authStore.token) {
+                    authStore.getTokenFromCookie();
+                }
+                
+                if (!authStore.token) {
+                    this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+                    return { success: false, message: this.error };
+                }
+                
                 const formData = new FormData()
                 formData.append('image', photoData.file)
                 formData.append('title', photoData.title)
@@ -33,12 +45,14 @@ export const useGalleryStore = defineStore('gallery', {
                 formData.append('category', photoData.category)
 
                 // API endpoint'i buraya gelecek
-                const response = await axios.post('API_URL/gallery', formData, {
+                const response = await $fetch('API_URL/gallery', {
+                    method: 'POST',
+                    body: formData,
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Authorization': `Bearer ${authStore.token}`
                     }
                 })
-                return response.data
+                return response
             } catch (error) {
                 this.error = error.message
                 console.error('Fotoğraf yüklenirken hata:', error)
@@ -51,10 +65,28 @@ export const useGalleryStore = defineStore('gallery', {
         async deletePhoto(photoId) {
             try {
                 this.loading = true
+                
+                // Auth store'dan token'ı al
+                const authStore = useAuthStore();
+                if (!authStore.token) {
+                    authStore.getTokenFromCookie();
+                }
+                
+                if (!authStore.token) {
+                    this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+                    return { success: false, message: this.error };
+                }
+                
                 // API endpoint'i buraya gelecek
-                await axios.delete(`API_URL/gallery/${photoId}`)
+                await $fetch(`API_URL/gallery/${photoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authStore.token}`
+                    }
+                })
                 // Başarılı silme işleminden sonra listeyi güncelle
                 this.photos = this.photos.filter(photo => photo.id !== photoId)
+                return { success: true, message: 'Fotoğraf başarıyla silindi' }
             } catch (error) {
                 this.error = error.message
                 console.error('Fotoğraf silinirken hata:', error)
@@ -67,6 +99,18 @@ export const useGalleryStore = defineStore('gallery', {
         async updatePhoto(photoId, photoData) {
             try {
                 this.loading = true
+                
+                // Auth store'dan token'ı al
+                const authStore = useAuthStore();
+                if (!authStore.token) {
+                    authStore.getTokenFromCookie();
+                }
+                
+                if (!authStore.token) {
+                    this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+                    return { success: false, message: this.error };
+                }
+                
                 const formData = new FormData()
                 if (photoData.file) {
                     formData.append('image', photoData.file)
@@ -76,12 +120,14 @@ export const useGalleryStore = defineStore('gallery', {
                 formData.append('category', photoData.category)
 
                 // API endpoint'i buraya gelecek
-                const response = await axios.put(`API_URL/gallery/${photoId}`, formData, {
+                const response = await $fetch(`API_URL/gallery/${photoId}`, {
+                    method: 'PUT',
+                    body: formData,
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Authorization': `Bearer ${authStore.token}`
                     }
                 })
-                return response.data
+                return response
             } catch (error) {
                 this.error = error.message
                 console.error('Fotoğraf güncellenirken hata:', error)

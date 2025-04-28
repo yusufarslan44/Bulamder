@@ -1,5 +1,5 @@
-import axios from "axios";
 import { defineStore } from "pinia";
+import { useAuthStore } from './auth';
 
 export const useNewsStore = defineStore("news", {
   state: () => ({
@@ -66,9 +66,8 @@ export const useNewsStore = defineStore("news", {
       this.loading = true;
       this.error = null;
       try {
-        const response = await fetch("http://localhost:5000/api/news/upcoming");
-        const data = await response.json();
-        this.upcomingNews = data;
+        const response = await $fetch("http://localhost:5000/api/news/upcoming");
+        this.upcomingNews = response;
       } catch (error) {
         console.error("Yaklaşan etkinlikler yüklenirken hata:", error);
         this.error = "Yaklaşan etkinlikler yüklenirken bir hata oluştu";
@@ -82,16 +81,32 @@ export const useNewsStore = defineStore("news", {
       console.log("çalıştı pina");
       this.loading = true;
       this.error = null;
+      
+      // Auth store'dan token'ı al
+      const authStore = useAuthStore();
+      if (!authStore.token) {
+        authStore.getTokenFromCookie();
+      }
+      
+      if (!authStore.token) {
+        this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+        return { success: false, message: this.error };
+      }
+      
       try {
-        const { data } = await axios.post(
-          "http://localhost:5000/api/news/",
-          formData
-        );
-        console.log("response ", data);
-        this.news = data;
+        const response = await $fetch("http://localhost:5000/api/news/", {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Authorization': `Bearer ${authStore.token}`
+          }
+        });
+        console.log("response ", response);
+        this.news = response;
         return this.news
       } catch (error) {
         console.error("Etkinlik oluşturulurken hata:", error);
+        this.error = error.response?.data?.message || "Etkinlik oluşturulurken bir hata oluştu";
         return { success: false, message: this.error };
       } finally {
         this.loading = false;
@@ -102,24 +117,38 @@ export const useNewsStore = defineStore("news", {
     async updateNews(newsId, formData) {
       this.loading = true;
       this.error = null;
+      
+      // Auth store'dan token'ı al
+      const authStore = useAuthStore();
+      if (!authStore.token) {
+        authStore.getTokenFromCookie();
+      }
+      
+      if (!authStore.token) {
+        this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+        return { success: false, message: this.error };
+      }
+      
       try {
-        const response = await fetch(
+        const response = await $fetch(
           `http://localhost:5000/api/news/${newsId}`,
           {
             method: "PUT",
+            headers: {
+              'Authorization': `Bearer ${authStore.token}`
+            },
             body: formData,
           }
         );
-        const data = await response.json();
-        if (response.ok) {
+        if (response.success) {
           // Güncellenen etkinliği listede güncelle
           const index = this.news.findIndex((news) => news._id === newsId);
           if (index !== -1) {
-            this.news[index] = data.news;
+            this.news[index] = response.news;
           }
           return { success: true, message: "Etkinlik başarıyla güncellendi" };
         } else {
-          throw new Error(data.message);
+          throw new Error(response.message);
         }
       } catch (error) {
         console.error("Etkinlik güncellenirken hata:", error);
@@ -134,20 +163,34 @@ export const useNewsStore = defineStore("news", {
     async deleteNews(newsId) {
       this.loading = true;
       this.error = null;
+      
+      // Auth store'dan token'ı al
+      const authStore = useAuthStore();
+      if (!authStore.token) {
+        authStore.getTokenFromCookie();
+      }
+      
+      if (!authStore.token) {
+        this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+        return { success: false, message: this.error };
+      }
+      
       try {
-        const response = await fetch(
+        const response = await $fetch(
           `http://localhost:5000/api/news/${newsId}`,
           {
             method: "DELETE",
+            headers: {
+              'Authorization': `Bearer ${authStore.token}`
+            }
           }
         );
-        if (response.ok) {
+        if (response.success) {
           // Silinen etkinliği listeden kaldır
           this.news = this.news.filter((news) => news._id !== newsId);
           return { success: true, message: "Etkinlik başarıyla silindi" };
         } else {
-          const data = await response.json();
-          throw new Error(data.message);
+          throw new Error(response.message);
         }
       } catch (error) {
         console.error("Etkinlik silinirken hata:", error);

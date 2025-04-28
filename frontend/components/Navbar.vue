@@ -1,22 +1,22 @@
 <template>
     <nav class="navbar">
-        <v-app-bar color="white" elevation="1">
+        <v-app-bar elevation="1" class="green-gradient">
             <v-container class="d-flex align-center">
                 <!-- Logo -->
-                <v-btn to="/" variant="text" class="text-h5 font-weight-bold mr-4">
+                <v-btn to="/" variant="text" class="text-h5 font-weight-bold mr-4 text-white">
                     LOGO
                 </v-btn>
 
                 <!-- Desktop Menu -->
-                <v-tabs v-model="activeTab" color="primary" class="hidden-sm-and-down ml-4" grow>
+                <v-tabs v-model="activeTab" color="white" class="hidden-sm-and-down ml-4" grow>
                     <v-tab v-for="item in menuItems" :key="item.path" :to="item.path" :value="item.path"
-                        class="text-subtitle-1 font-weight-medium text-none px-6" style="min-width: 120px;">
+                        class="text-subtitle-1 font-weight-medium text-none px-6 text-white" style="min-width: 120px;">
                         {{ item.title }}
                     </v-tab>
                 </v-tabs>
 
                 <!-- Mobile Menu Button -->
-                <v-app-bar-nav-icon class="hidden-md-and-up ml-auto"
+                <v-app-bar-nav-icon class="hidden-md-and-up ml-auto white--text"
                     @click="isDrawerOpen = !isDrawerOpen"></v-app-bar-nav-icon>
             </v-container>
         </v-app-bar>
@@ -62,6 +62,10 @@ onMounted(() => {
     left: 0;
     right: 0;
     z-index: 100;
+}
+
+.green-gradient {
+    background: linear-gradient(90deg, #09c256, #0b7231);
 }
 
 .v-tab {

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useAuthStore } from './auth'
 
 export const useEventStore = defineStore('event', {
     state: () => ({
@@ -15,6 +16,7 @@ export const useEventStore = defineStore('event', {
             this.error = null
             try {
                 const data = await $fetch('http://localhost:5000/api/events')
+                console.log("data", data);
                 this.events = data || []
             } catch (error) {
                 console.error('Etkinlikler yüklenirken hata:', error)
@@ -29,7 +31,7 @@ export const useEventStore = defineStore('event', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await useAsyncData('upcomingEvents', () =>
+                const data = await useAsyncData('upcomingEvents', () =>
                     $fetch('http://localhost:5000/api/events/upcoming')
                 )
                 this.upcomingEvents = data.value || []
@@ -46,9 +48,24 @@ export const useEventStore = defineStore('event', {
             this.loading = true
             this.error = null
             console.log("çalıştı1 ");
+            
+            // Auth store'dan token'ı al
+            const authStore = useAuthStore();
+            if (!authStore.token) {
+                authStore.getTokenFromCookie();
+            }
+            
+            if (!authStore.token) {
+                this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+                return { success: false, message: this.error };
+            }
+            
             try {
                 const response = await $fetch('http://localhost:5000/api/events', {
                     method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authStore.token}`
+                    },
                     body: formData
                 })
                 console.log("response ", response);
@@ -72,9 +89,24 @@ export const useEventStore = defineStore('event', {
             this.loading = true
             this.error = null
             console.log("event id", eventId);
+            
+            // Auth store'dan token'ı al
+            const authStore = useAuthStore();
+            if (!authStore.token) {
+                authStore.getTokenFromCookie();
+            }
+            
+            if (!authStore.token) {
+                this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+                return { success: false, message: this.error };
+            }
+            
             try {
                 const response = await $fetch(`http://localhost:5000/api/events/${eventId}`, {
                     method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authStore.token}`
+                    },
                     body: formData
                 })
                 console.log("response ", response);
@@ -103,9 +135,24 @@ export const useEventStore = defineStore('event', {
         async deleteEvent(eventId) {
             this.loading = true
             this.error = null
+            
+            // Auth store'dan token'ı al
+            const authStore = useAuthStore();
+            if (!authStore.token) {
+                authStore.getTokenFromCookie();
+            }
+            
+            if (!authStore.token) {
+                this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+                return { success: false, message: this.error };
+            }
+            
             try {
                 const response = await $fetch(`http://localhost:5000/api/events/${eventId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authStore.token}`
+                    }
                 })
                 console.log("response  delete", response);
                 if (response.message === "Etkinlik başarıyla silindi") {

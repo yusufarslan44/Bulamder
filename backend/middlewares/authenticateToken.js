@@ -1,25 +1,43 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
-const jwtKey = process.env.SECRET_KEY;
+// JWT secret key
+const jwtKey = process.env.SECRET_KEY || 'secretkey';
 
 const authenticateToken = async (req, res, next) => {
     try {
-        const token = req.headers['authorization'];
-        if (!token) return res.sendStatus(401);
-        jwt.verify(token.split(' ')[1], jwtKey, (err, user) => {
-            if (err) return res.sendStatus(401);
-            req.user = user;
+        // Token'ı Authorization header'ından al
+        console.log("req.headers", req.headers)
+        const authHeader = req.headers['authorization'];
+        console.log("authHeader", authHeader)
+        if (!authHeader) {
+            return res.status(401).json({ message: 'Yetkilendirme başlığı bulunamadı' });
+        }
+        
+        // "Bearer TOKEN" formatından TOKEN kısmını çıkar
+        const token = authHeader.split(' ')[1];
+        console.log("token", token)
+        if (!token) {
+            return res.status(401).json({ message: 'Token bulunamadı' });
+        }
+
+        // Token'ı doğrula
+        jwt.verify(token, jwtKey, (err, decoded) => {
+            if (err) {
+                if (err.name === 'TokenExpiredError') {
+                    return res.status(401).json({ message: 'Token süresi dolmuş' });
+                }
+                return res.status(401).json({ message: 'Geçersiz token' });
+            }
+
+            // Doğrulanan kullanıcı bilgisini request objesine ekle
+            req.user = decoded;
             next();
         });
     } catch (error) {
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ message: 'Token has expired' })
-        } else {
-            return res.status(500).json({ message: 'Internal Server Error' })
-        }
+        console.error('Token doğrulama hatası:', error);
+        return res.status(500).json({ message: 'Sunucu hatası' });
     }
-
 };
 
 module.exports = authenticateToken;

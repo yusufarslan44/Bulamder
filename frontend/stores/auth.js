@@ -5,7 +5,10 @@ export const useAuthStore = defineStore('auth', {
         auth: [],
         upcomingAuth: [],
         loading: false,
-        error: null
+        error: null,
+        user: null,
+        token: null,
+        isAuthenticated: false
     }),
 
     actions: {
@@ -41,60 +44,104 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-
-        async registerAuth(formData) {
-            this.loading = true
-            this.error = null
-            console.log("çalıştı1 ");
-            console.log("form data pinia", formData);
-            try {
-                const response = await $fetch('http://localhost:5000/api/auth/register', {
-                    method: 'POST',
-                    body: formData
-                })
-                console.log("response ", response);
-
-                // Eğer response.auth dizisi varsa, her bir öğeyi auth dizisine ekleyelim
-                this.auth.push(response.auth) // Spread operator ile ekliyoruz
-                return { success: true, message: 'Etkinlik başarıyla oluşturuldu' }
-
-
-            } catch (error) {
-                console.error('Etkinlik oluşturulurken hata:', error)
-                this.error = 'Etkinlik oluşturulurken bir hata oluştu'
-                return { success: false, message: this.error }
-            } finally {
-                this.loading = false
+        // Cookie'den token'ı al
+        getTokenFromCookie() {
+            const cookies = document.cookie.split(';')
+            const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+            if (tokenCookie) {
+                this.token = tokenCookie.split('=')[1]
+                this.isAuthenticated = true
+                return true
             }
+            return false
         },
 
-        // Etkinlik güncelle
-        async loginAuth(formData) {
-            this.loading = true
-            this.error = null
-            console.log("çalıştı1 ");
-            console.log("form data pinia", formData);
+        // Cookie'ye token'ı kaydet
+        setTokenToCookie(token) {
+            document.cookie = `token=${token}; path=/; max-age=3600; SameSite=Lax`
+            this.token = token
+            this.isAuthenticated = true
+        },
+
+        // Cookie'den token'ı sil
+        removeTokenFromCookie() {
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+            this.token = null
+            this.isAuthenticated = false
+            this.user = null
+        },
+
+        // Login işlemi
+        async loginAuth(credentials) {
             try {
+                // Credentials objeyse JSON.stringify yap
+                if (typeof credentials === 'object') {
+                    credentials = JSON.stringify(credentials);
+                }
+                
                 const response = await $fetch('http://localhost:5000/api/auth/login', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: credentials
                 })
-                console.log("response ", response);
-
-                // Eğer response.auth dizisi varsa, her bir öğeyi auth dizisine ekleyelim
-                this.auth.push(response.auth) // Spread operator ile ekliyoruz
-                return { success: true, message: 'Etkinlik başarıyla oluşturuldu' }
-
-
+                
+                // Token'ı cookie'ye kaydet
+                if (response.token) {
+                    this.setTokenToCookie(response.token)
+                    // Kullanıcı bilgilerini kaydet
+                    this.user = response.user
+                    return true
+                } else {
+                    // Token yoksa giriş başarısız
+                    throw new Error(response.message || 'Giriş başarısız')
+                }
             } catch (error) {
-                console.error('Etkinlik oluşturulurken hata:', error)
-                this.error = 'Etkinlik oluşturulurken bir hata oluştu'
-                return { success: false, message: this.error }
-            } finally {
-                this.loading = false
+                console.error('Login error:', error)
+                // FetchError içinden gerçek hata mesajını çıkar
+                if (error.response && error.response._data) {
+                    throw new Error(error.response._data.message || 'Giriş başarısız')
+                }
+                throw error
             }
         },
-        // Etkinlik sil
+
+        // Register işlemi
+        async registerAuth(credentials) {
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: credentials
+                })
+
+                if (!response.ok) {
+                    throw new Error('Kayıt başarısız')
+                }
+
+                return true
+            } catch (error) {
+                console.error('Register error:', error)
+                throw error
+            }
+        },
+
+        // Çıkış işlemi
+        logout() {
+            this.removeTokenFromCookie()
+        },
+
+        // Kullanıcı durumunu kontrol et
+        checkAuth() {
+            return this.getTokenFromCookie()
+        },
+
+     
+       
+   
         async deleteAuth(authId) {
             this.loading = true
             this.error = null

@@ -4,8 +4,7 @@ const bcrypt = require('bcryptjs');
 const adminSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   lastName: {
     type: String,
@@ -24,6 +23,10 @@ const adminSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
+  },
+  reason: {
+    type: String,
+    required: true
   },
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { useAuthStore } from './auth'
 
 const API_URL = 'http://localhost:5000/api'
 
@@ -16,8 +16,8 @@ export const useStatisticStore = defineStore('statistic', {
       this.loading = true
       this.error = null
       try {
-        // const { data } = await axios.get(`${API_URL}/statistics`)
-        // this.statistics = data
+        // const response = await $fetch(`${API_URL}/statistics`)
+        // this.statistics = response
       } catch (error) {
         console.error('İstatistikler yüklenirken hata:', error)
         this.error = 'İstatistikler yüklenirken bir hata oluştu'
@@ -29,12 +29,30 @@ export const useStatisticStore = defineStore('statistic', {
     // Ziyaretçi sayısını artır
     async incrementVisitorCount() {
       try {
-        const { data } = await axios.post(`${API_URL}/statistics/visitor`)
-        if (this.statistics) {
-          this.statistics.visitorCount = data.visitorCount
+        // Auth store'dan token'ı al
+        const authStore = useAuthStore();
+        if (!authStore.token) {
+          authStore.getTokenFromCookie();
         }
+        
+        if (!authStore.token) {
+          this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
+          return { success: false, message: this.error };
+        }
+        
+        const response = await $fetch(`${API_URL}/statistics/visitor`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authStore.token}`
+          }
+        })
+        if (this.statistics) {
+          this.statistics.visitorCount = response.visitorCount
+        }
+        return { success: true }
       } catch (error) {
         console.error('Ziyaretçi sayısı güncellenirken hata:', error)
+        return { success: false, message: error.message }
       }
     }
   },

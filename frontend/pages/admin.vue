@@ -21,9 +21,13 @@
                             <v-icon color="white">mdi-account</v-icon>
                         </v-avatar>
                         <div>
-                            <div class="text-subtitle-2 white--text font-weight-medium">Admin</div>
-                            <div class="text-caption white--text text-opacity-75">Yönetici</div>
+                            <div class="text-subtitle-2 white--text font-weight-medium">{{ authStore.user?.firstName || 'Admin' }}</div>
+                            <div class="text-caption white--text text-opacity-75">{{ authStore.user?.role || 'Yönetici' }}</div>
                         </div>
+                        <v-spacer></v-spacer>
+                        <v-btn icon color="white" class="logout-btn" @click="handleLogout">
+                            <v-icon>mdi-logout-variant</v-icon>
+                        </v-btn>
                     </div>
                 </v-card>
             </v-col>
@@ -32,20 +36,20 @@
             <v-col cols="12" md="10" class="main-content">
                 <v-container class="pa-6">
                     <!-- Üst Bilgi Çubuğu -->
-                    <v-card class="mb-6 header-card" elevation="2" rounded="lg" color="secondary">
-                        <v-card-text>
+                    <v-card class="mb-6 header-card" elevation="3" rounded="xl" color="secondary">
+                        <v-card-text class="py-4">
                             <v-row align="center">
                                 <v-col cols="6">
                                     <div class="d-flex align-center">
-                                        <v-icon size="30" color="white" class="mr-3">{{ getCurrentSectionIcon
-                                            }}</v-icon>
-                                        <h2 class="text-h4 font-weight-bold white--text">{{ getCurrentSectionTitle }}
-                                        </h2>
+                                        <div class="header-icon-container mr-3">
+                                            <v-icon size="30" color="white">{{ getCurrentSectionIcon }}</v-icon>
+                                        </div>
+                                        <h2 class="text-h4 font-weight-bold white--text">{{ getCurrentSectionTitle }}</h2>
                                     </div>
                                 </v-col>
                                 <v-col cols="6" class="text-right">
                                     <v-btn color="primary" prepend-icon="mdi-refresh" @click="refreshData"
-                                        :loading="isLoading" rounded="pill" elevation="2" class="px-6" dark>
+                                        :loading="isLoading" rounded="pill" elevation="2" class="px-6 refresh-btn" size="large">
                                         Yenile
                                     </v-btn>
                                 </v-col>
@@ -53,69 +57,67 @@
                         </v-card-text>
                     </v-card>
 
-                    <!-- Dinamik İçerik -->
-                    <v-fade-transition mode="out-in">
-                        <v-card class="content-card" rounded="lg" elevation="1" color="surface">
-                            <v-card-text class="pa-6">
-                                <AdminStatistics v-if="currentSection === 'statistics'" />
-                                <AdminGallery v-if="currentSection === 'gallery'" />
-                                <AdminEvent v-if="currentSection === 'events'" />
-                                <AdminNews v-if="currentSection === 'news'" />
-                            </v-card-text>
-                        </v-card>
-                    </v-fade-transition>
-
-                    <!-- Alt Bilgi Kartları -->
-                    <v-row class="mt-6">
-                        <v-col cols="12" md="4">
-                            <v-card class="info-card" rounded="lg" elevation="1" color="info" dark>
+                    <!-- İstatistik Kartları -->
+                    <v-row class="mb-6 stats-row">
+                        <v-col cols="12" md="4" class="fade-in-item">
+                            <v-card class="stat-card rounded-xl" elevation="3" color="info" dark>
                                 <v-card-text class="pa-4">
                                     <div class="d-flex align-center">
-                                        <v-avatar size="42" class="mr-3" color="rgba(255, 255, 255, 0.2)">
-                                            <v-icon color="white">mdi-account-group</v-icon>
+                                        <v-avatar size="54" class="mr-4 stat-icon" color="rgba(255, 255, 255, 0.2)">
+                                            <v-icon color="white" size="30">mdi-account-group</v-icon>
                                         </v-avatar>
                                         <div>
-                                            <div class="text-body-1 font-weight-medium">Ziyaretçiler</div>
-                                            <div class="text-h5 font-weight-bold">{{
-                                                statisticStore.getStatistics?.visitorCount || 0 }}</div>
+                                            <div class="text-body-1 font-weight-medium mb-1">Ziyaretçiler</div>
+                                            <div class="text-h4 font-weight-bold counter-animation">{{ statisticStore.getStatistics?.visitorCount || 0 }}</div>
                                         </div>
                                     </div>
                                 </v-card-text>
                             </v-card>
                         </v-col>
-                        <v-col cols="12" md="4">
-                            <v-card class="info-card" rounded="lg" elevation="1" color="success" dark>
+                        <v-col cols="12" md="4" class="fade-in-item" style="animation-delay: 0.2s;">
+                            <v-card class="stat-card rounded-xl" elevation="3" color="success" dark>
                                 <v-card-text class="pa-4">
                                     <div class="d-flex align-center">
-                                        <v-avatar size="42" class="mr-3" color="rgba(255, 255, 255, 0.2)">
-                                            <v-icon color="white">mdi-image-multiple</v-icon>
+                                        <v-avatar size="54" class="mr-4 stat-icon" color="rgba(255, 255, 255, 0.2)">
+                                            <v-icon color="white" size="30">mdi-image-multiple</v-icon>
                                         </v-avatar>
                                         <div>
-                                            <div class="text-body-1 font-weight-medium">Toplam Fotoğraf</div>
-                                            <div class="text-h5 font-weight-bold">{{
-                                                statisticStore.getStatistics?.photoCount || 0 }}</div>
+                                            <div class="text-body-1 font-weight-medium mb-1">Toplam Fotoğraf</div>
+                                            <div class="text-h4 font-weight-bold counter-animation">{{ statisticStore.getStatistics?.photoCount || 0 }}</div>
                                         </div>
                                     </div>
                                 </v-card-text>
                             </v-card>
                         </v-col>
-                        <v-col cols="12" md="4">
-                            <v-card class="info-card" rounded="lg" elevation="1" color="warning" dark>
+                        <v-col cols="12" md="4" class="fade-in-item" style="animation-delay: 0.4s;">
+                            <v-card class="stat-card rounded-xl" elevation="3" color="warning" dark>
                                 <v-card-text class="pa-4">
                                     <div class="d-flex align-center">
-                                        <v-avatar size="42" class="mr-3" color="rgba(255, 255, 255, 0.2)">
-                                            <v-icon color="white">mdi-calendar-check</v-icon>
+                                        <v-avatar size="54" class="mr-4 stat-icon" color="rgba(255, 255, 255, 0.2)">
+                                            <v-icon color="white" size="30">mdi-calendar-check</v-icon>
                                         </v-avatar>
                                         <div>
-                                            <div class="text-body-1 font-weight-medium">Toplam Etkinlik</div>
-                                            <div class="text-h5 font-weight-bold">{{
-                                                statisticStore.getStatistics?.eventCount || 0 }}</div>
+                                            <div class="text-body-1 font-weight-medium mb-1">Toplam Etkinlik</div>
+                                            <div class="text-h4 font-weight-bold counter-animation">{{ statisticStore.getStatistics?.eventCount || 0 }}</div>
                                         </div>
                                     </div>
                                 </v-card-text>
                             </v-card>
                         </v-col>
                     </v-row>
+
+                    <!-- Dinamik İçerik -->
+                    <v-fade-transition mode="out-in">
+                        <v-card class="content-card rounded-xl" elevation="3" color="surface">
+                            <v-card-text class="pa-6">
+                                <AdminStatistics v-if="currentSection === 'statistics'" />
+                                <AdminGallery v-if="currentSection === 'gallery'" />
+                                <AdminEvent v-if="currentSection === 'events'" />
+                                <AdminNews v-if="currentSection === 'news'" />
+                                <AdminPendingAdmins v-if="currentSection === 'pending-admins'" />
+                            </v-card-text>
+                        </v-card>
+                    </v-fade-transition>
                 </v-container>
             </v-col>
         </v-row>
@@ -123,18 +125,27 @@
 </template>
 
 <script setup>
+definePageMeta({
+    middleware: 'auth'
+})
 import { usePhotoStore } from '@/stores/photo'
 import { useEventStore } from '@/stores/event'
 import { useStatisticStore } from '@/stores/statistic'
+import { useNewsStore } from '@/stores/news'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 import AdminEvent from '~/components/adminEvent.vue'
 import AdminGallery from '~/components/AdminGallery.vue'
 import AdminStatistics from '~/components/AdminStatistics.vue'
 import AdminNews from '~/components/AdminNews.vue'
+import AdminPendingAdmins from '~/components/AdminPendingAdmins.vue'
 
 const photoStore = usePhotoStore()
 const eventStore = useEventStore()
 const statisticStore = useStatisticStore()
 const newsStore = useNewsStore()
+const authStore = useAuthStore()
+const router = useRouter()
 
 // Menü öğeleri
 const menuItems = [
@@ -156,7 +167,12 @@ const menuItems = [
     {
         title: 'Haber Yönetimi',
         value: 'news',
-        icon: 'mdi-events'
+        icon: 'mdi-newspaper-plus'
+    },
+    {
+        title: 'Bekleyen Yöneticiler',
+        value: 'pending-admins',
+        icon: 'mdi-account-multiple-plus'
     }
 ]
 
@@ -191,56 +207,133 @@ const refreshData = async () => {
     }
 }
 
-// Sayfa yüklendiğinde istatistikleri getir
+// Oturum kontrolü
 onMounted(async () => {
+    // Cookie'den token kontrolü yap
+    if (!authStore.checkAuth()) {
+        router.push('/login')
+        return
+    }
+
+    // İstatistikleri getir
     await statisticStore.fetchStatistics()
 })
+
+// Çıkış yap
+const handleLogout = () => {
+    authStore.logout()
+    router.push('/login')
+}
 </script>
 
 <style scoped>
 .admin-sidebar {
-    background: linear-gradient(135deg, #52f852, #0060f1) !important;
+    background: linear-gradient(135deg, #09c256, #0b7231) !important;
     min-height: 100vh;
     position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .brand-header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px 16px;
 }
 
 .sidebar-menu {
     background-color: transparent !important;
+    padding-top: 20px;
 }
 
 .menu-item {
     margin: 4px 12px !important;
     border-radius: 12px !important;
     transition: all 0.3s ease;
+    height: 48px;
+    opacity: 0.8;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    opacity: 1;
 }
 
 .active-item {
     background-color: rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(8px);
+    opacity: 1;
 }
 
-.v-list-item--active {
-    background-color: rgba(255, 255, 255, 0.15) !important;
+.logout-btn {
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.logout-btn:hover {
+    transform: translateY(-3px);
+    opacity: 1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .main-content {
-    background-color: #ffffff;
+    background-color: #f8f9fa;
     min-height: 100vh;
 }
 
 .header-card {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    background: linear-gradient(135deg, #37474f, #263238) !important;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.header-icon-container {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .content-card {
-    background-color: #37474f;
-    min-height: 70vh;
-    color: white;
+    background-color: #ffffff;
+    min-height: 60vh;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05) !important;
+    color: #333;
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+.stat-icon {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1);
+}
+
+.refresh-btn {
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #09c256, #0b7231) !important;
+}
+
+.refresh-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(9, 194, 86, 0.3) !important;
 }
 
 .user-section {
@@ -251,13 +344,55 @@ onMounted(async () => {
     align-items: center;
     background-color: rgba(0, 0, 0, 0.2);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px;
 }
 
-.info-card {
-    transition: transform 0.3s;
+.fade-in-item {
+    animation: fadeInUp 0.6s ease forwards;
+    opacity: 0;
 }
 
-.info-card:hover {
-    transform: translateY(-5px);
+.counter-animation {
+    animation: countUp 2s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 960px) {
+    .admin-sidebar {
+        min-height: auto;
+    }
+    
+    .user-section {
+        position: relative;
+    }
+    
+    .stats-row {
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        margin-bottom: 16px;
+    }
 }
 </style>

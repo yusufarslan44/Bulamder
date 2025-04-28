@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const eventController = require('../controllers/eventController');
 const upload = require('../middlewares/upload');
+const authenticateToken = require('../middlewares/authenticateToken');
 
 // Etkinlik oluştur
-router.post('/', upload.single('image'), eventController.createEvent);
+router.post('/', authenticateToken, upload.single('image'), eventController.createEvent);
 
 // Tüm etkinlikleri getir
 router.get('/', eventController.getAllEvents);
@@ -13,9 +14,9 @@ router.get('/', eventController.getAllEvents);
 router.get('/upcoming', eventController.getUpcomingEvents);
 
 // Etkinlik güncelle
-router.put('/:id', upload.single('image'), eventController.updateEvent);
+router.put('/:id', authenticateToken, upload.single('image'), eventController.updateEvent);
 
 // Etkinlik sil
-router.delete('/:id', eventController.deleteEvent);
+router.delete('/:id', authenticateToken, eventController.deleteEvent);
 
 module.exports = router; 
