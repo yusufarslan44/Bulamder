@@ -82,40 +82,85 @@
             <!-- Haberler için yatay slider - Enhanced with better cards -->
             <v-row>
                 <v-col cols="12">
-                    <v-carousel :key="filteredNews.length" :show-arrows="true" height="450" hide-delimiter-background
-                        :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" hide-delimiters
-                        class="news-carousel">
-                        <v-carousel-item v-for="i in Math.ceil(filteredNews.length / 3)" :key="i">
-                            <v-row>
-                                <v-col v-for="(haber, index) in filteredNews.slice((i - 1) * 3, i * 3)" :key="index"
-                                    cols="12" md="4">
-                                    <v-card class="h-100 news-card rounded-xl" elevation="3">
-                                        <v-img :src="haber.imageUrl" height="220" cover class="news-image">
-                                            <div class="image-overlay-gradient"></div>
-                                        </v-img>
-                                        <v-card-item>
-                                            <v-chip color="primary" size="small" class="mb-2 text-caption">{{ haber.category }}</v-chip>
-                                            <v-card-title class="text-h6 font-weight-bold">
-                                                {{ haber.title }}
-                                            </v-card-title>
-                                            <v-card-text class="text-body-2 news-description"
-                                                v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
-                                            </v-card-text>
-                                            <div class="d-flex justify-space-between align-center">
-                                                <span class="text-caption text-grey d-flex align-center">
-                                                    <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
-                                                    {{ haber.date }}
-                                                </span>
-                                                <v-btn variant="text" color="primary" to="/gundem" class="read-more">
-                                                    Devamını Oku
-                                                    <v-icon size="small" class="ml-1">mdi-arrow-right</v-icon>
-                                                </v-btn>
-                                            </div>
-                                        </v-card-item>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                        </v-carousel-item>
+                    <v-carousel 
+                        :key="filteredNews.length" 
+                        :show-arrows="true" 
+                        :height="$vuetify.display.xs || $vuetify.display.sm ? '450' : '450'" 
+                        hide-delimiter-background
+                        :interval="6000" 
+                        cycle 
+                        :continuous="false" 
+                        delimiter-icon="mdi-circle" 
+                        class="news-carousel"
+                    >
+                        <!-- Mobil görünümde her slayt tek kart gösterir -->
+                        <template v-if="$vuetify.display.xs || $vuetify.display.sm">
+                            <v-carousel-item v-for="(haber, index) in filteredNews.slice(0, 9)" :key="'m-'+index">
+                                <v-row justify="center">
+                                    <v-col cols="12" class="mobile-card pa-4">
+                                        <v-card class="h-100 news-card rounded-xl" elevation="3">
+                                            <v-img :src="haber.imageUrl" height="200" cover class="news-image">
+                                                <div class="image-overlay-gradient"></div>
+                                            </v-img>
+                                            <v-card-item>
+                                                <v-chip color="primary" size="small" class="mb-2 text-caption">{{ haber.category }}</v-chip>
+                                                <v-card-title class="text-h6 font-weight-bold">
+                                                    {{ haber.title }}
+                                                </v-card-title>
+                                                <v-card-text class="text-body-2 news-description"
+                                                    v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
+                                                </v-card-text>
+                                                <div class="d-flex justify-space-between align-center">
+                                                    <span class="text-caption text-grey d-flex align-center">
+                                                        <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+                                                        {{ haber.date }}
+                                                    </span>
+                                                    <v-btn variant="text" color="primary" to="/gundem" class="read-more">
+                                                        Devamını Oku
+                                                        <v-icon size="small" class="ml-1">mdi-arrow-right</v-icon>
+                                                    </v-btn>
+                                                </div>
+                                            </v-card-item>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-carousel-item>
+                        </template>
+                        
+                        <!-- Masaüstü görünümde 3'lü kart gösterir -->
+                        <template v-else>
+                            <v-carousel-item v-for="i in Math.ceil(filteredNews.length / 3)" :key="i">
+                                <v-row>
+                                    <v-col v-for="(haber, index) in filteredNews.slice((i - 1) * 3, i * 3)" :key="index"
+                                        cols="12" md="4">
+                                        <v-card class="h-100 news-card rounded-xl" elevation="3">
+                                            <v-img :src="haber.imageUrl" height="220" cover class="news-image">
+                                                <div class="image-overlay-gradient"></div>
+                                            </v-img>
+                                            <v-card-item>
+                                                <v-chip color="primary" size="small" class="mb-2 text-caption">{{ haber.category }}</v-chip>
+                                                <v-card-title class="text-h6 font-weight-bold">
+                                                    {{ haber.title }}
+                                                </v-card-title>
+                                                <v-card-text class="text-body-2 news-description"
+                                                    v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
+                                                </v-card-text>
+                                                <div class="d-flex justify-space-between align-center">
+                                                    <span class="text-caption text-grey d-flex align-center">
+                                                        <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+                                                        {{ haber.date }}
+                                                    </span>
+                                                    <v-btn variant="text" color="primary" to="/gundem" class="read-more">
+                                                        Devamını Oku
+                                                        <v-icon size="small" class="ml-1">mdi-arrow-right</v-icon>
+                                                    </v-btn>
+                                                </div>
+                                            </v-card-item>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-carousel-item>
+                        </template>
                     </v-carousel>
                     <div class="text-center mt-8">
                         <v-btn color="primary" class="rounded-xl elevation-2 px-6" to="/gundem">
@@ -128,7 +173,7 @@
         </v-container>
 
         <!-- Yaklaşan Etkinlik - Enhanced with modern design -->
-        <v-container fluid class="upcoming-event-section py-16 position-relative">
+        <v-container fluid class="upcoming-event-section py-16 position-relative" v-if="upcomingEvent">
             <div class="event-pattern-overlay"></div>
             <v-row justify="center">
                 <v-col cols="12" md="10">
@@ -144,27 +189,27 @@
                                 </p>
                                 <div class="d-flex align-center mb-4 event-info">
                                     <v-icon icon="mdi-calendar" color="white" class="mr-2"></v-icon>
-                                    <span class="text-white">{{ upcomingEvent.date }}</span>
+                                    <span class="text-white">{{ formatDate(upcomingEvent.date) }}</span>
                                 </div>
-                                <div class="d-flex align-center event-info">
+                                <div class="d-flex align-center event-info" v-if="upcomingEvent.location">
                                     <v-icon icon="mdi-map-marker" color="white" class="mr-2"></v-icon>
                                     <span class="text-white">{{ upcomingEvent.location }}</span>
                                 </div>
                             </v-col>
                             <v-col cols="12" md="5" class="text-center">
-                                <div class="event-countdown pa-4 rounded-lg mb-4">
+                                <div class="event-countdown pa-4 rounded-lg mb-4" v-if="eventCountdown">
                                     <div class="text-center text-subtitle-2 mb-2 text-white">Etkinliğe Kalan Süre</div>
                                     <div class="d-flex justify-space-around">
                                         <div class="countdown-item">
-                                            <div class="text-h4 font-weight-bold">15</div>
+                                            <div class="text-h4 font-weight-bold">{{ eventCountdown.days }}</div>
                                             <div class="text-caption">Gün</div>
                                         </div>
                                         <div class="countdown-item">
-                                            <div class="text-h4 font-weight-bold">08</div>
+                                            <div class="text-h4 font-weight-bold">{{ eventCountdown.hours }}</div>
                                             <div class="text-caption">Saat</div>
                                         </div>
                                         <div class="countdown-item">
-                                            <div class="text-h4 font-weight-bold">45</div>
+                                            <div class="text-h4 font-weight-bold">{{ eventCountdown.minutes }}</div>
                                             <div class="text-caption">Dakika</div>
                                         </div>
                                     </div>
@@ -196,37 +241,79 @@
             <!-- Galeri için yatay slider - Enhanced with better cards -->
             <v-row>
                 <v-col cols="12">
-                    <v-carousel :key="filteredPhotos.length" :show-arrows="true" height="350" hide-delimiter-background
-                        :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" hide-delimiters
-                        class="gallery-carousel">
-                        <v-carousel-item v-for="i in Math.ceil(filteredPhotos.length / 4)" :key="i">
-                            <v-row>
-                                <v-col v-for="(photo, index) in filteredPhotos.slice((i - 1) * 4, i * 4)" :key="index"
-                                    cols="12" sm="6" md="3">
-                                    <v-card class="mx-auto gallery-card rounded-xl" elevation="3" height="100%">
-                                        <v-img :src="photo.imageUrl" :alt="photo.title" class="align-end gallery-image" height="220"
-                                            cover>
-                                            <div class="image-overlay-gradient"></div>
-                                            <v-card-title class="text-white position-relative">
-                                                {{ photo.title }}
-                                            </v-card-title>
-                                        </v-img>
+                    <v-carousel 
+                        :key="filteredPhotos.length" 
+                        :show-arrows="true" 
+                        :height="$vuetify.display.xs || $vuetify.display.sm ? '350' : '350'" 
+                        hide-delimiter-background
+                        :interval="6000" 
+                        cycle 
+                        :continuous="false" 
+                        delimiter-icon="mdi-circle" 
+                        class="gallery-carousel"
+                    >
+                        <!-- Mobil görünümde her slayt tek kart gösterir -->
+                        <template v-if="$vuetify.display.xs || $vuetify.display.sm">
+                            <v-carousel-item v-for="(photo, index) in filteredPhotos.slice(0, 12)" :key="'gm-'+index">
+                                <v-row justify="center">
+                                    <v-col cols="12" class="mobile-card pa-4">
+                                        <v-card class="mx-auto gallery-card rounded-xl" elevation="3" height="100%">
+                                            <v-img :src="photo.imageUrl" :alt="photo.title" class="align-end gallery-image" height="220"
+                                                cover>
+                                                <div class="image-overlay-gradient"></div>
+                                                <v-card-title class="text-white position-relative">
+                                                    {{ photo.title }}
+                                                </v-card-title>
+                                            </v-img>
 
-                                        <v-card-text>
-                                            <div class="text-subtitle-1 mb-2">
-                                                {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
-                                                    "..." : photo.description }}
-                                            </div>
+                                            <v-card-text>
+                                                <div class="text-subtitle-1 mb-2">
+                                                    {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
+                                                        "..." : photo.description }}
+                                                </div>
 
-                                            <v-chip size="small" :color="getCategoryColor(photo.category)" class="mt-2">
-                                                <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
-                                                {{ getCategoryLabel(photo.category) }}
-                                            </v-chip>
-                                        </v-card-text>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                        </v-carousel-item>
+                                                <v-chip size="small" :color="getCategoryColor(photo.category)" class="mt-2">
+                                                    <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
+                                                    {{ getCategoryLabel(photo.category) }}
+                                                </v-chip>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-carousel-item>
+                        </template>
+                        
+                        <!-- Masaüstü görünümde 4'lü kart gösterir -->
+                        <template v-else>
+                            <v-carousel-item v-for="i in Math.ceil(filteredPhotos.length / 4)" :key="i">
+                                <v-row>
+                                    <v-col v-for="(photo, index) in filteredPhotos.slice((i - 1) * 4, i * 4)" :key="index"
+                                        cols="12" sm="6" md="3">
+                                        <v-card class="mx-auto gallery-card rounded-xl" elevation="3" height="100%">
+                                            <v-img :src="photo.imageUrl" :alt="photo.title" class="align-end gallery-image" height="220"
+                                                cover>
+                                                <div class="image-overlay-gradient"></div>
+                                                <v-card-title class="text-white position-relative">
+                                                    {{ photo.title }}
+                                                </v-card-title>
+                                            </v-img>
+
+                                            <v-card-text>
+                                                <div class="text-subtitle-1 mb-2">
+                                                    {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
+                                                        "..." : photo.description }}
+                                                </div>
+
+                                                <v-chip size="small" :color="getCategoryColor(photo.category)" class="mt-2">
+                                                    <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
+                                                    {{ getCategoryLabel(photo.category) }}
+                                                </v-chip>
+                                            </v-card-text>
+                                        </v-card>
+                                    </v-col>
+                                </v-row>
+                            </v-carousel-item>
+                        </template>
                     </v-carousel>
                     <div class="text-center mt-8">
                         <v-btn color="primary" size="x-large" to="/galeri" class="rounded-xl elevation-2 px-6">
@@ -241,8 +328,13 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+
 const photos = computed(() => usePhotoStore().getPhotos)
 const newsStore = computed(() => useNewsStore().getNews)
+const events = computed(() => useEventStore().getEvents)
+const upcomingEvents = computed(() => useEventStore().getUpcomingEvents)
+
 const filteredNews = computed(() => {
     let filtered = newsStore.value
     return filtered.slice(0, 20) // İlk 20 haberi al
@@ -252,6 +344,58 @@ const filteredPhotos = computed(() => {
     let filtered = photos.value
     return filtered.slice(0, 20) // İlk 20 fotoğrafı al
 })
+
+// En yakın etkinliği bul
+const upcomingEvent = computed(() => {
+    if (!upcomingEvents.value || upcomingEvents.value.length === 0) {
+        // Eğer yaklaşan etkinlik yoksa veya yüklenmediyse, events'ten en yakın tarihi olanı göster
+        if (!events.value || events.value.length === 0) return null
+        
+        // Tarih formatını kontrol ederek sıralama yap
+        const sortedEvents = [...events.value].sort((a, b) => {
+            const dateA = new Date(a.date)
+            const dateB = new Date(b.date)
+            return dateA - dateB
+        })
+        
+        return sortedEvents[0]
+    }
+    
+    // Yaklaşan etkinliklerde ilk sıradaki etkinliği döndür
+    return upcomingEvents.value[0]
+})
+
+// Etkinlik için geri sayım hesaplama
+const eventCountdown = computed(() => {
+    if (!upcomingEvent.value || !upcomingEvent.value.date) return null
+    
+    const eventDate = new Date(upcomingEvent.value.date)
+    const now = new Date()
+    
+    // Eğer etkinlik tarihi geçmişse countdown gösterme
+    if (eventDate < now) return null
+    
+    const diff = eventDate - now
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+    
+    return { days, hours, minutes }
+})
+
+// Tarih formatı için yardımcı fonksiyon
+const formatDate = (dateString) => {
+    if (!dateString) return ''
+    
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString // Eğer geçerli bir tarih değilse orijinali döndür
+    
+    return date.toLocaleDateString('tr-TR', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+    })
+}
 
 const getCategoryColor = (category) => {
     const colors = {
@@ -273,17 +417,16 @@ const getCategoryLabel = (category) => {
     return labels[category] || category
 }
 
-onBeforeMount(async () => {
-    await usePhotoStore().fetchPhotos()
-    await useNewsStore().fetchNews()
+onMounted(async () => {
+    try {
+        await usePhotoStore().fetchPhotos()
+        await useNewsStore().fetchNews()
+        await useEventStore().fetchEvents()
+        await useEventStore().fetchUpcomingEvents()
+    } catch (error) {
+        console.error('Veriler yüklenirken hata:', error)
+    }
 })
-
-const upcomingEvent = {
-    title: 'Geleneksel Köy Festivali',
-    description: 'Her yıl düzenlenen geleneksel köy festivalimizde yerel lezzetler, müzik, dans ve eğlence sizleri bekliyor.',
-    date: '15 Haziran 2024',
-    location: 'Köy Meydanı'
-}
 
 const heroImages = [
     'https://cdn.pixabay.com/photo/2021/06/19/17/51/italy-6349105_1280.jpg',
@@ -455,7 +598,7 @@ const heroImages = [
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2309c256' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z' fill='%2309c256' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
     opacity: 0.5;
 }
 
@@ -599,6 +742,120 @@ const heroImages = [
     
     .feature-item:last-child {
         border-bottom: none;
+    }
+    
+    /* Hero kısmı için responsive ayarlar */
+    .hero-carousel {
+        margin-top: 30px;
+        height: auto !important;
+        max-height: 380px;
+    }
+    
+    /* Haberler carousel için responsive ayarlar */
+    .news-carousel {
+        height: auto !important;
+        padding-bottom: 50px;
+    }
+    
+    .news-description {
+        min-height: 60px;
+    }
+    
+    /* Galeri carousel için responsive ayarlar */
+    .gallery-carousel {
+        height: auto !important;
+        padding-bottom: 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: auto;
+        padding: 60px 0;
+    }
+    
+    .hero-content {
+        padding-bottom: 30px;
+    }
+    
+    .event-card {
+        padding: 20px !important;
+    }
+    
+    .event-countdown {
+        margin: 0 auto;
+        max-width: 90%;
+    }
+    
+    .countdown-item {
+        min-width: 60px;
+        padding: 8px;
+    }
+    
+    .countdown-item .text-h4 {
+        font-size: 1.5rem !important;
+    }
+    
+    .news-description {
+        min-height: 40px;
+    }
+    
+    .d-flex.flex-wrap.gap-3 {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .hero-carousel {
+        max-height: 300px;
+    }
+    
+    .text-h2 {
+        font-size: 2rem !important;
+    }
+    
+    .event-countdown .d-flex {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .countdown-item {
+        flex: 0 0 calc(33% - 10px);
+    }
+    
+    .text-center {
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .news-card, .gallery-card {
+        margin-bottom: 20px;
+    }
+    
+    .v-carousel__controls {
+        margin-bottom: -20px;
+    }
+    
+    .hero-content .d-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .hero-content .v-btn {
+        margin-right: 0 !important;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    
+    .countdown-item {
+        min-width: 55px;
+        padding: 6px;
+    }
+    
+    .section-divider {
+        margin: 0 auto;
     }
 }
 </style>

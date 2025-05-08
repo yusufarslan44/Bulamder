@@ -32,10 +32,8 @@ export const useAuthStore = defineStore('auth', {
             this.loading = true
             this.error = null
             try {
-                const { data } = await useAsyncData('upcomingAuth', () =>
-                    $fetch('http://localhost:5000/api/auth/upcoming')
-                )
-                this.upcomingAuth = data.value || []
+                const response = await $fetch('http://localhost:5000/api/auth/upcoming')
+                this.upcomingAuth = response || []
             } catch (error) {
                 console.error('Yaklaşan etkinlikler yüklenirken hata:', error)
                 this.error = 'Yaklaşan etkinlikler yüklenirken bir hata oluştu'

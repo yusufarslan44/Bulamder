@@ -65,7 +65,7 @@ onMounted(() => {
 }
 
 .green-gradient {
-    background: linear-gradient(90deg, #09c256, #0b7231);
+    background: linear-gradient(90deg, #0ae465, #0c7c35);
 }
 
 .v-tab {

@@ -35,7 +35,7 @@
                             <v-icon size="small" class="mr-1">mdi-book-open-variant</v-icon>
                             Tarihi
                         </v-chip>
-                    </v-chip-group>
+                </v-chip-group>
                 </v-sheet>
             </v-col>
         </v-row>
@@ -56,9 +56,9 @@
                         <v-img :src="photo.imageUrl" :alt="photo.title" height="220" cover class="gallery-image">
                             <div class="image-overlay-gradient"></div>
                             <v-card-title class="text-white position-relative">
-                                {{ photo.title }}
-                            </v-card-title>
-                        </v-img>
+                            {{ photo.title }}
+                        </v-card-title>
+                    </v-img>
                     </div>
 
                     <v-card-text class="pa-4">
@@ -68,8 +68,8 @@
                         <div class="d-flex align-center justify-space-between">
                             <v-chip size="small" :color="getCategoryColor(photo.category)" class="category-chip">
                                 <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
-                                {{ getCategoryLabel(photo.category) }}
-                            </v-chip>
+                            {{ getCategoryLabel(photo.category) }}
+                        </v-chip>
                             <span class="text-caption text-grey">{{ new Date(photo.createdAt).toLocaleDateString('tr-TR') }}</span>
                         </div>
                     </v-card-text>
@@ -105,7 +105,7 @@
                     <div class="d-flex align-center">
                         <v-icon size="small" color="grey" class="mr-1">mdi-calendar</v-icon>
                         <span class="text-caption text-grey">
-                            {{ new Date(selectedPhoto.createdAt).toLocaleDateString('tr-TR') }}
+                        {{ new Date(selectedPhoto.createdAt).toLocaleDateString('tr-TR') }}
                         </span>
                     </div>
                 </v-card-text>
@@ -171,7 +171,7 @@ const openPhotoDialog = (photo) => {
 onMounted(async () => {
     isLoading.value = true
     try {
-        await usePhotoStore().fetchPhotos()
+    await usePhotoStore().fetchPhotos()
     } catch (e) {
         console.error("Fotoğraflar yüklenirken hata oluştu:", e)
     } finally {

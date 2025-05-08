@@ -31,10 +31,8 @@ export const useEventStore = defineStore('event', {
             this.loading = true
             this.error = null
             try {
-                const data = await useAsyncData('upcomingEvents', () =>
-                    $fetch('http://localhost:5000/api/events/upcoming')
-                )
-                this.upcomingEvents = data.value || []
+                const response = await $fetch('http://localhost:5000/api/events/upcoming')
+                this.upcomingEvents = response || []
             } catch (error) {
                 console.error('Yaklaşan etkinlikler yüklenirken hata:', error)
                 this.error = 'Yaklaşan etkinlikler yüklenirken bir hata oluştu'
