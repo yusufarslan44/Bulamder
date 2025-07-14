@@ -10,17 +10,17 @@
             </v-card-title>
 
             <v-card-text class="px-6 py-4">
-                <v-alert v-if="loading" type="info" class="mb-4 rounded-lg fade-in-item">
+                <v-alert v-if="adminStore.loading" type="info" class="mb-4 rounded-lg fade-in-item">
                     <div class="d-flex align-center">
                         <v-progress-circular indeterminate color="info" class="mr-3"></v-progress-circular>
                         <span>Başvurular yükleniyor...</span>
                     </div>
                 </v-alert>
 
-                <v-alert v-else-if="error" type="error" class="mb-4 rounded-lg fade-in-item" variant="tonal" border="start">
+                <v-alert v-else-if="adminStore.error" type="error" class="mb-4 rounded-lg fade-in-item" variant="tonal" border="start">
                     <div class="d-flex align-center">
                         <v-icon color="error" class="mr-2">mdi-alert-circle</v-icon>
-                        {{ error }}
+                        {{ adminStore.error }}
                     </div>
                 </v-alert>
 
@@ -115,16 +115,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
+import { useAdminPendingStore } from '~/stores/adminPending'
 
 const authStore = useAuthStore()
-const loading = ref(false)
-const error = ref(null)
-const pendingAdmins = ref([])
+const adminStore = useAdminPendingStore()
 const dialog = ref(false)
 const dialogAction = ref('approve')
 const selectedAdminId = ref(null)
+
+// Bekleyen adminleri store'dan al
+const pendingAdmins = computed(() => adminStore.getPendingAdmins)
 
 // Tarih formatlama fonksiyonu
 const formatDate = (date) => {
@@ -140,29 +142,6 @@ const formatDate = (date) => {
 // Başvuru nedenini kısaltma
 const truncateReason = (reason) => {
     return reason.length > 30 ? reason.substring(0, 30) + '...' : reason
-}
-
-// Bekleyen adminleri getir
-const fetchPendingAdmins = async () => {
-    loading.value = true
-    error.value = null
-    try {
-        console.log("token ", authStore.token)
-        const response = await fetch('http://localhost:5000/api/auth/pending', {
-            headers: {
-                'Authorization': `Bearer ${authStore.token}`
-            }
-        })
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Bekleyen adminler getirilemedi');
-        }
-        pendingAdmins.value = await response.json()
-    } catch (err) {
-        error.value = err.message
-    } finally {
-        loading.value = false
-    }
 }
 
 // Onaylama işlemi
@@ -182,34 +161,21 @@ const handleReject = (adminId) => {
 // Onay/Red işlemini onayla
 const confirmAction = async () => {
     try {
-        const response = await fetch(`http://localhost:5000/api/auth/${selectedAdminId.value}/approve`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authStore.token}`
-            },
-            body: JSON.stringify({
-                action: dialogAction.value,
-                approvedBy: authStore.user?._id
-            })
-        })
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'İşlem başarısız oldu');
-        }
-
-        // Listeyi güncelle
-        await fetchPendingAdmins()
+        const result = await adminStore.handleAdminAction(
+            selectedAdminId.value, 
+            dialogAction.value, 
+            authStore.user?._id
+        )
+        
         dialog.value = false
     } catch (err) {
-        error.value = err.message
+        console.error('İşlem hatası:', err)
     }
 }
 
 // Sayfa yüklendiğinde bekleyen adminleri getir
 onMounted(() => {
-    fetchPendingAdmins()
+    adminStore.fetchPendingAdmins()
 })
 </script>
 

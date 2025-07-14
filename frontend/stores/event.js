@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useNuxtApp } from '#app'
 
 export const useEventStore = defineStore('event', {
     state: () => ({
@@ -12,10 +13,11 @@ export const useEventStore = defineStore('event', {
     actions: {
         // Tüm etkinlikleri getir
         async fetchEvents() {
+            const { $api } = useNuxtApp()
             this.loading = true
             this.error = null
             try {
-                const data = await $fetch('http://localhost:5000/api/events')
+                const data = await $api('/events')
                 console.log("data", data);
                 this.events = data || []
             } catch (error) {
@@ -28,10 +30,11 @@ export const useEventStore = defineStore('event', {
 
         // Yaklaşan etkinlikleri getir
         async fetchUpcomingEvents() {
+            const { $api } = useNuxtApp()
             this.loading = true
             this.error = null
             try {
-                const response = await $fetch('http://localhost:5000/api/events/upcoming')
+                const response = await $api('/events/upcoming')
                 this.upcomingEvents = response || []
             } catch (error) {
                 console.error('Yaklaşan etkinlikler yüklenirken hata:', error)
@@ -43,23 +46,24 @@ export const useEventStore = defineStore('event', {
 
         // Yeni etkinlik oluştur
         async createEvent(formData) {
+            const { $api } = useNuxtApp()
             this.loading = true
             this.error = null
             console.log("çalıştı1 ");
-            
+
             // Auth store'dan token'ı al
             const authStore = useAuthStore();
             if (!authStore.token) {
                 authStore.getTokenFromCookie();
             }
-            
+
             if (!authStore.token) {
                 this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
                 return { success: false, message: this.error };
             }
-            
+
             try {
-                const response = await $fetch('http://localhost:5000/api/events', {
+                const response = await $api('/events', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${authStore.token}`
@@ -84,23 +88,24 @@ export const useEventStore = defineStore('event', {
 
         // Etkinlik güncelle
         async updateEvent(eventId, formData) {
+            const { $api } = useNuxtApp()
             this.loading = true
             this.error = null
             console.log("event id", eventId);
-            
+
             // Auth store'dan token'ı al
             const authStore = useAuthStore();
             if (!authStore.token) {
                 authStore.getTokenFromCookie();
             }
-            
+
             if (!authStore.token) {
                 this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
                 return { success: false, message: this.error };
             }
-            
+
             try {
-                const response = await $fetch(`http://localhost:5000/api/events/${eventId}`, {
+                const response = await $api(`/events/${eventId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${authStore.token}`
@@ -131,22 +136,23 @@ export const useEventStore = defineStore('event', {
         },
         // Etkinlik sil
         async deleteEvent(eventId) {
+            const { $api } = useNuxtApp()
             this.loading = true
             this.error = null
-            
+
             // Auth store'dan token'ı al
             const authStore = useAuthStore();
             if (!authStore.token) {
                 authStore.getTokenFromCookie();
             }
-            
+
             if (!authStore.token) {
                 this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
                 return { success: false, message: this.error };
             }
-            
+
             try {
-                const response = await $fetch(`http://localhost:5000/api/events/${eventId}`, {
+                const response = await $api(`/events/${eventId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${authStore.token}`

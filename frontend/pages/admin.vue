@@ -21,8 +21,10 @@
                             <v-icon color="white">mdi-account</v-icon>
                         </v-avatar>
                         <div>
-                            <div class="text-subtitle-2 white--text font-weight-medium">{{ authStore.user?.firstName || 'Admin' }}</div>
-                            <div class="text-caption white--text text-opacity-75">{{ authStore.user?.role || 'Yönetici' }}</div>
+                            <div class="text-subtitle-2 white--text font-weight-medium">{{ authStore.user?.firstName ||
+                                'Admin' }}</div>
+                            <div class="text-caption white--text text-opacity-75">{{ authStore.user?.role || 'Yönetici'
+                                }}</div>
                         </div>
                         <v-spacer></v-spacer>
                         <v-btn icon color="white" class="logout-btn" @click="handleLogout">
@@ -44,12 +46,14 @@
                                         <div class="header-icon-container mr-3">
                                             <v-icon size="30" color="white">{{ getCurrentSectionIcon }}</v-icon>
                                         </div>
-                                        <h2 class="text-h4 font-weight-bold white--text">{{ getCurrentSectionTitle }}</h2>
+                                        <h2 class="text-h4 font-weight-bold white--text">{{ getCurrentSectionTitle }}
+                                        </h2>
                                     </div>
                                 </v-col>
                                 <v-col cols="6" class="text-right">
                                     <v-btn color="primary" prepend-icon="mdi-refresh" @click="refreshData"
-                                        :loading="isLoading" rounded="pill" elevation="2" class="px-6 refresh-btn" size="large">
+                                        :loading="isLoading" rounded="pill" elevation="2" class="px-6 refresh-btn"
+                                        size="large">
                                         Yenile
                                     </v-btn>
                                 </v-col>
@@ -68,7 +72,8 @@
                                         </v-avatar>
                                         <div>
                                             <div class="text-body-1 font-weight-medium mb-1">Ziyaretçiler</div>
-                                            <div class="text-h4 font-weight-bold counter-animation">{{ statisticStore.getStatistics?.visitorCount || 0 }}</div>
+                                            <div class="text-h4 font-weight-bold counter-animation">{{
+                                                statisticStore.getStatistics?.visitorCount || 0 }}</div>
                                         </div>
                                     </div>
                                 </v-card-text>
@@ -83,7 +88,8 @@
                                         </v-avatar>
                                         <div>
                                             <div class="text-body-1 font-weight-medium mb-1">Toplam Fotoğraf</div>
-                                            <div class="text-h4 font-weight-bold counter-animation">{{ statisticStore.getStatistics?.photoCount || 0 }}</div>
+                                            <div class="text-h4 font-weight-bold counter-animation">{{
+                                                statisticStore.getStatistics?.photoCount || 0 }}</div>
                                         </div>
                                     </div>
                                 </v-card-text>
@@ -98,7 +104,8 @@
                                         </v-avatar>
                                         <div>
                                             <div class="text-body-1 font-weight-medium mb-1">Toplam Etkinlik</div>
-                                            <div class="text-h4 font-weight-bold counter-animation">{{ statisticStore.getStatistics?.eventCount || 0 }}</div>
+                                            <div class="text-h4 font-weight-bold counter-animation">{{
+                                                statisticStore.getStatistics?.eventCount || 0 }}</div>
                                         </div>
                                     </div>
                                 </v-card-text>
@@ -115,6 +122,7 @@
                                 <AdminEvent v-if="currentSection === 'events'" />
                                 <AdminNews v-if="currentSection === 'news'" />
                                 <AdminPendingAdmins v-if="currentSection === 'pending-admins'" />
+                                <AdminPageContent v-if="currentSection === 'page-contents'" />
                             </v-card-text>
                         </v-card>
                     </v-fade-transition>
@@ -133,18 +141,21 @@ import { useEventStore } from '@/stores/event'
 import { useStatisticStore } from '@/stores/statistic'
 import { useNewsStore } from '@/stores/news'
 import { useAuthStore } from '@/stores/auth'
+import { usePageContentStore } from '@/stores/pageContent'
 import { useRouter } from 'vue-router'
 import AdminEvent from '~/components/adminEvent.vue'
 import AdminGallery from '~/components/AdminGallery.vue'
 import AdminStatistics from '~/components/AdminStatistics.vue'
 import AdminNews from '~/components/AdminNews.vue'
 import AdminPendingAdmins from '~/components/AdminPendingAdmins.vue'
+import AdminPageContent from '~/components/AdminPageContent.vue'
 
 const photoStore = usePhotoStore()
 const eventStore = useEventStore()
 const statisticStore = useStatisticStore()
 const newsStore = useNewsStore()
 const authStore = useAuthStore()
+const pageContentStore = usePageContentStore()
 const router = useRouter()
 
 // Menü öğeleri
@@ -170,6 +181,11 @@ const menuItems = [
         icon: 'mdi-newspaper-plus'
     },
     {
+        title: 'Sayfa İçerikleri',
+        value: 'page-contents',
+        icon: 'mdi-file-document-edit'
+    },
+    {
         title: 'Bekleyen Yöneticiler',
         value: 'pending-admins',
         icon: 'mdi-account-multiple-plus'
@@ -191,7 +207,7 @@ const getCurrentSectionIcon = computed(() => {
 })
 
 const isLoading = computed(() => {
-    return statisticStore.isLoading || photoStore.isLoading || eventStore.isLoading
+    return statisticStore.isLoading || photoStore.isLoading || eventStore.isLoading || pageContentStore.isLoading
 })
 
 // Methods
@@ -204,26 +220,33 @@ const refreshData = async () => {
         await eventStore.fetchEvents()
     } else if (currentSection.value === 'news') {
         await newsStore.fetchNews()
+    } else if (currentSection.value === 'page-contents') {
+        await pageContentStore.fetchAllPageContents()
     }
 }
 
-// Oturum kontrolü
-onMounted(async () => {
-    // Cookie'den token kontrolü yap
-    if (!authStore.checkAuth()) {
-        router.push('/login')
-        return
-    }
-
-    // İstatistikleri getir
-    await statisticStore.fetchStatistics()
-})
-
-// Çıkış yap
+// Çıkış işlemi
 const handleLogout = () => {
     authStore.logout()
     router.push('/login')
 }
+
+// Sayfa yüklendiğinde verileri getir
+onMounted(async () => {
+    if (!authStore.isAuthenticated) {
+        authStore.checkAuth()
+    }
+
+    try {
+        await Promise.all([
+            statisticStore.fetchStatistics(),
+            eventStore.fetchEvents(),
+            photoStore.fetchPhotos()
+        ])
+    } catch (error) {
+        console.error("Admin paneli verileri yüklenirken hata:", error)
+    }
+})
 </script>
 
 <style scoped>
@@ -361,6 +384,7 @@ const handleLogout = () => {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -372,6 +396,7 @@ const handleLogout = () => {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -382,15 +407,15 @@ const handleLogout = () => {
     .admin-sidebar {
         min-height: auto;
     }
-    
+
     .user-section {
         position: relative;
     }
-    
+
     .stats-row {
         margin-bottom: 20px;
     }
-    
+
     .stat-card {
         margin-bottom: 16px;
     }

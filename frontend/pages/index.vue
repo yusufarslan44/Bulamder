@@ -8,21 +8,22 @@
                     <v-container class="position-relative">
                         <v-row align="center" style="min-height: 90vh;">
                             <v-col cols="12" md="6" class="hero-content fade-in">
-                                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">DOĞAYLA İÇ İÇE</span>
+                                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">DOĞAYLA İÇ
+                                    İÇE</span>
                                 <h1 class="text-h2 font-weight-bold mb-4 text-animation">
-                                    Çelikhan'a <br>
-                                    <span class="text-gradient">Hoş Geldiniz</span>
+                                    {{ heroSection.title }}
                                 </h1>
                                 <p class="text-body-1 mb-8 max-width-500 animate-paragraph">
-                                    Doğal güzellikleri, zengin kültürü ve misafirperver insanlarıyla
-                                    Çelikhan, sizleri bekliyor. Yemyeşil doğası ve temiz havasıyla huzur bulacağınız bir yer.
+                                    {{ heroSection.content }}
                                 </p>
                                 <div class="d-flex flex-wrap gap-3">
-                                    <v-btn color="primary" size="x-large" class="mr-4 elevation-3 rounded-xl pulse-button" to="/galeri">
+                                    <v-btn color="primary" size="x-large"
+                                        class="mr-4 elevation-3 rounded-xl pulse-button" to="/galeri">
                                         <v-icon left class="mr-2">mdi-image-multiple</v-icon>
                                         Galeriyi Keşfet
                                     </v-btn>
-                                    <v-btn variant="outlined" color="primary" size="x-large" class="rounded-xl hover-float" to="/iletisim">
+                                    <v-btn variant="outlined" color="primary" size="x-large"
+                                        class="rounded-xl hover-float" to="/iletisim">
                                         <v-icon left class="mr-2">mdi-message-outline</v-icon>
                                         İletişime Geç
                                     </v-btn>
@@ -47,20 +48,11 @@
         <v-row no-gutters class="features-bar">
             <v-container>
                 <v-row class="py-4">
-                    <v-col cols="12" md="4" class="feature-item text-center py-3">
-                        <v-icon color="primary" size="36" class="mb-2">mdi-pine-tree</v-icon>
-                        <h3 class="text-subtitle-1 font-weight-bold">Doğal Güzellikler</h3>
-                        <p class="text-caption">Eşsiz manzaralar ve temiz hava</p>
-                    </v-col>
-                    <v-col cols="12" md="4" class="feature-item text-center py-3">
-                        <v-icon color="primary" size="36" class="mb-2">mdi-food</v-icon>
-                        <h3 class="text-subtitle-1 font-weight-bold">Yerel Lezzetler</h3>
-                        <p class="text-caption">Yöresel mutfak kültürü</p>
-                    </v-col>
-                    <v-col cols="12" md="4" class="feature-item text-center py-3">
-                        <v-icon color="primary" size="36" class="mb-2">mdi-account-group</v-icon>
-                        <h3 class="text-subtitle-1 font-weight-bold">Misafirperverlik</h3>
-                        <p class="text-caption">Sıcak ve samimi insanlar</p>
+                    <v-col cols="12" md="4" class="feature-item text-center py-3"
+                        v-for="(feature, index) in featuresSection.features" :key="index">
+                        <v-icon color="primary" size="36" class="mb-2">{{ feature.icon }}</v-icon>
+                        <h3 class="text-subtitle-1 font-weight-bold">{{ feature.title }}</h3>
+                        <p class="text-caption">{{ feature.description }}</p>
                     </v-col>
                 </v-row>
             </v-container>
@@ -70,11 +62,12 @@
         <v-container class="py-16">
             <v-row justify="center" class="mb-12">
                 <v-col cols="12" md="8" class="text-center">
-                    <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">GÜNCEL GELİŞMELER</span>
-                    <h2 class="text-h3 font-weight-bold mb-3">Son Haberler</h2>
+                    <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">{{
+                        newsSection.subtitle }}</span>
+                    <h2 class="text-h3 font-weight-bold mb-3">{{ newsSection.title }}</h2>
                     <div class="section-divider mx-auto mb-4"></div>
                     <p class="text-body-1">
-                        Köyümüzden en güncel haberler ve gelişmeler
+                        {{ newsSection.content }}
                     </p>
                 </v-col>
             </v-row>
@@ -82,20 +75,12 @@
             <!-- Haberler için yatay slider - Enhanced with better cards -->
             <v-row>
                 <v-col cols="12">
-                    <v-carousel 
-                        :key="filteredNews.length" 
-                        :show-arrows="true" 
-                        :height="$vuetify.display.xs || $vuetify.display.sm ? '450' : '450'" 
-                        hide-delimiter-background
-                        :interval="6000" 
-                        cycle 
-                        :continuous="false" 
-                        delimiter-icon="mdi-circle" 
-                        class="news-carousel"
-                    >
+                    <v-carousel :key="filteredNews.length" :show-arrows="true"
+                        :height="$vuetify.display.xs || $vuetify.display.sm ? '450' : '450'" hide-delimiter-background
+                        :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" class="news-carousel">
                         <!-- Mobil görünümde her slayt tek kart gösterir -->
                         <template v-if="$vuetify.display.xs || $vuetify.display.sm">
-                            <v-carousel-item v-for="(haber, index) in filteredNews.slice(0, 9)" :key="'m-'+index">
+                            <v-carousel-item v-for="(haber, index) in filteredNews.slice(0, 9)" :key="'m-' + index">
                                 <v-row justify="center">
                                     <v-col cols="12" class="mobile-card pa-4">
                                         <v-card class="h-100 news-card rounded-xl" elevation="3">
@@ -103,7 +88,8 @@
                                                 <div class="image-overlay-gradient"></div>
                                             </v-img>
                                             <v-card-item>
-                                                <v-chip color="primary" size="small" class="mb-2 text-caption">{{ haber.category }}</v-chip>
+                                                <v-chip color="primary" size="small" class="mb-2 text-caption">{{
+                                                    haber.category }}</v-chip>
                                                 <v-card-title class="text-h6 font-weight-bold">
                                                     {{ haber.title }}
                                                 </v-card-title>
@@ -115,7 +101,8 @@
                                                         <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                                                         {{ haber.date }}
                                                     </span>
-                                                    <v-btn variant="text" color="primary" to="/gundem" class="read-more">
+                                                    <v-btn variant="text" color="primary" to="/gundem"
+                                                        class="read-more">
                                                         Devamını Oku
                                                         <v-icon size="small" class="ml-1">mdi-arrow-right</v-icon>
                                                     </v-btn>
@@ -126,7 +113,7 @@
                                 </v-row>
                             </v-carousel-item>
                         </template>
-                        
+
                         <!-- Masaüstü görünümde 3'lü kart gösterir -->
                         <template v-else>
                             <v-carousel-item v-for="i in Math.ceil(filteredNews.length / 3)" :key="i">
@@ -138,7 +125,8 @@
                                                 <div class="image-overlay-gradient"></div>
                                             </v-img>
                                             <v-card-item>
-                                                <v-chip color="primary" size="small" class="mb-2 text-caption">{{ haber.category }}</v-chip>
+                                                <v-chip color="primary" size="small" class="mb-2 text-caption">{{
+                                                    haber.category }}</v-chip>
                                                 <v-card-title class="text-h6 font-weight-bold">
                                                     {{ haber.title }}
                                                 </v-card-title>
@@ -150,7 +138,8 @@
                                                         <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                                                         {{ haber.date }}
                                                     </span>
-                                                    <v-btn variant="text" color="primary" to="/gundem" class="read-more">
+                                                    <v-btn variant="text" color="primary" to="/gundem"
+                                                        class="read-more">
                                                         Devamını Oku
                                                         <v-icon size="small" class="ml-1">mdi-arrow-right</v-icon>
                                                     </v-btn>
@@ -214,7 +203,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <v-btn variant="outlined" color="white" size="x-large" to="/etkinlikler" class="rounded-xl px-6 mt-4 event-button">
+                                <v-btn variant="outlined" color="white" size="x-large" to="/etkinlikler"
+                                    class="rounded-xl px-6 mt-4 event-button">
                                     <v-icon left class="mr-2">mdi-calendar-check</v-icon>
                                     Tüm Etkinlikler
                                 </v-btn>
@@ -229,11 +219,13 @@
         <v-container class="py-16">
             <v-row justify="center" class="mb-12">
                 <v-col cols="12" md="8" class="text-center">
-                    <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">FOTOĞRAFLAR</span>
-                    <h2 class="text-h3 font-weight-bold mb-3">Galeri</h2>
+                    <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">{{
+                        gallerySection.subtitle
+                        }}</span>
+                    <h2 class="text-h3 font-weight-bold mb-3">{{ gallerySection.title }}</h2>
                     <div class="section-divider mx-auto mb-4"></div>
                     <p class="text-body-1">
-                        Köyümüzden seçkin fotoğraflar
+                        {{ gallerySection.content }}
                     </p>
                 </v-col>
             </v-row>
@@ -241,25 +233,17 @@
             <!-- Galeri için yatay slider - Enhanced with better cards -->
             <v-row>
                 <v-col cols="12">
-                    <v-carousel 
-                        :key="filteredPhotos.length" 
-                        :show-arrows="true" 
-                        :height="$vuetify.display.xs || $vuetify.display.sm ? '350' : '350'" 
-                        hide-delimiter-background
-                        :interval="6000" 
-                        cycle 
-                        :continuous="false" 
-                        delimiter-icon="mdi-circle" 
-                        class="gallery-carousel"
-                    >
+                    <v-carousel :key="filteredPhotos.length" :show-arrows="true"
+                        :height="$vuetify.display.xs || $vuetify.display.sm ? '350' : '350'" hide-delimiter-background
+                        :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" class="gallery-carousel">
                         <!-- Mobil görünümde her slayt tek kart gösterir -->
                         <template v-if="$vuetify.display.xs || $vuetify.display.sm">
-                            <v-carousel-item v-for="(photo, index) in filteredPhotos.slice(0, 12)" :key="'gm-'+index">
+                            <v-carousel-item v-for="(photo, index) in filteredPhotos.slice(0, 12)" :key="'gm-' + index">
                                 <v-row justify="center">
                                     <v-col cols="12" class="mobile-card pa-4">
                                         <v-card class="mx-auto gallery-card rounded-xl" elevation="3" height="100%">
-                                            <v-img :src="photo.imageUrl" :alt="photo.title" class="align-end gallery-image" height="220"
-                                                cover>
+                                            <v-img :src="photo.imageUrl" :alt="photo.title"
+                                                class="align-end gallery-image" height="220" cover>
                                                 <div class="image-overlay-gradient"></div>
                                                 <v-card-title class="text-white position-relative">
                                                     {{ photo.title }}
@@ -272,7 +256,8 @@
                                                         "..." : photo.description }}
                                                 </div>
 
-                                                <v-chip size="small" :color="getCategoryColor(photo.category)" class="mt-2">
+                                                <v-chip size="small" :color="getCategoryColor(photo.category)"
+                                                    class="mt-2">
                                                     <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
                                                     {{ getCategoryLabel(photo.category) }}
                                                 </v-chip>
@@ -282,16 +267,16 @@
                                 </v-row>
                             </v-carousel-item>
                         </template>
-                        
+
                         <!-- Masaüstü görünümde 4'lü kart gösterir -->
                         <template v-else>
                             <v-carousel-item v-for="i in Math.ceil(filteredPhotos.length / 4)" :key="i">
                                 <v-row>
-                                    <v-col v-for="(photo, index) in filteredPhotos.slice((i - 1) * 4, i * 4)" :key="index"
-                                        cols="12" sm="6" md="3">
+                                    <v-col v-for="(photo, index) in filteredPhotos.slice((i - 1) * 4, i * 4)"
+                                        :key="index" cols="12" sm="6" md="3">
                                         <v-card class="mx-auto gallery-card rounded-xl" elevation="3" height="100%">
-                                            <v-img :src="photo.imageUrl" :alt="photo.title" class="align-end gallery-image" height="220"
-                                                cover>
+                                            <v-img :src="photo.imageUrl" :alt="photo.title"
+                                                class="align-end gallery-image" height="220" cover>
                                                 <div class="image-overlay-gradient"></div>
                                                 <v-card-title class="text-white position-relative">
                                                     {{ photo.title }}
@@ -304,7 +289,8 @@
                                                         "..." : photo.description }}
                                                 </div>
 
-                                                <v-chip size="small" :color="getCategoryColor(photo.category)" class="mt-2">
+                                                <v-chip size="small" :color="getCategoryColor(photo.category)"
+                                                    class="mt-2">
                                                     <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
                                                     {{ getCategoryLabel(photo.category) }}
                                                 </v-chip>
@@ -328,15 +314,20 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 
+// Sayfa içeriğini tutan reactive ref
+const pageContent = ref(null)
+
+// Store'lardan veri alan computed değerler
 const photos = computed(() => usePhotoStore().getPhotos)
-const newsStore = computed(() => useNewsStore().getNews)
+const news = computed(() => useNewsStore().getNews)
 const events = computed(() => useEventStore().getEvents)
 const upcomingEvents = computed(() => useEventStore().getUpcomingEvents)
 
+// Filtrelenmiş haberler ve fotoğraflar
 const filteredNews = computed(() => {
-    let filtered = newsStore.value
+    let filtered = news.value
     return filtered.slice(0, 20) // İlk 20 haberi al
 })
 
@@ -350,17 +341,17 @@ const upcomingEvent = computed(() => {
     if (!upcomingEvents.value || upcomingEvents.value.length === 0) {
         // Eğer yaklaşan etkinlik yoksa veya yüklenmediyse, events'ten en yakın tarihi olanı göster
         if (!events.value || events.value.length === 0) return null
-        
+
         // Tarih formatını kontrol ederek sıralama yap
         const sortedEvents = [...events.value].sort((a, b) => {
             const dateA = new Date(a.date)
             const dateB = new Date(b.date)
             return dateA - dateB
         })
-        
+
         return sortedEvents[0]
     }
-    
+
     // Yaklaşan etkinliklerde ilk sıradaki etkinliği döndür
     return upcomingEvents.value[0]
 })
@@ -368,32 +359,38 @@ const upcomingEvent = computed(() => {
 // Etkinlik için geri sayım hesaplama
 const eventCountdown = computed(() => {
     if (!upcomingEvent.value || !upcomingEvent.value.date) return null
-    
+
     const eventDate = new Date(upcomingEvent.value.date)
     const now = new Date()
-    
+
     // Eğer etkinlik tarihi geçmişse countdown gösterme
     if (eventDate < now) return null
-    
+
     const diff = eventDate - now
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    
+
     return { days, hours, minutes }
 })
+
+// Bölüm içerik getirme fonksiyonu
+const getSectionContent = (sectionName) => {
+    if (!pageContent.value || !pageContent.value.sections) return null
+    return pageContent.value.sections.find(section => section.sectionName === sectionName)
+}
 
 // Tarih formatı için yardımcı fonksiyon
 const formatDate = (dateString) => {
     if (!dateString) return ''
-    
+
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return dateString // Eğer geçerli bir tarih değilse orijinali döndür
-    
-    return date.toLocaleDateString('tr-TR', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
+
+    return date.toLocaleDateString('tr-TR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
     })
 }
 
@@ -417,15 +414,37 @@ const getCategoryLabel = (category) => {
     return labels[category] || category
 }
 
-onMounted(async () => {
-    try {
-        await usePhotoStore().fetchPhotos()
-        await useNewsStore().fetchNews()
-        await useEventStore().fetchEvents()
-        await useEventStore().fetchUpcomingEvents()
-    } catch (error) {
-        console.error('Veriler yüklenirken hata:', error)
-    }
+// Hero bölümü için dinamik içerik
+const heroSection = computed(() => getSectionContent('hero') || {
+    title: 'Çelikhan\'a Hoş Geldiniz',
+    subtitle: 'DOĞAYLA İÇ İÇE',
+    content: 'Doğal güzellikleri, zengin kültürü ve misafirperver insanlarıyla Çelikhan, sizleri bekliyor. Yemyeşil doğası ve temiz havasıyla huzur bulacağınız bir yer.'
+})
+
+// Features bölümü için dinamik içerik
+const featuresSection = computed(() => getSectionContent('features') || {
+    title: 'Özellikler',
+    subtitle: '',
+    content: '',
+    features: [
+        { icon: 'mdi-pine-tree', title: 'Doğal Güzellikler', description: 'Eşsiz manzaralar ve temiz hava' },
+        { icon: 'mdi-food', title: 'Yerel Lezzetler', description: 'Yöresel mutfak kültürü' },
+        { icon: 'mdi-account-group', title: 'Misafirperverlik', description: 'Sıcak ve samimi insanlar' }
+    ]
+})
+
+// Haberler bölümü için dinamik içerik
+const newsSection = computed(() => getSectionContent('news') || {
+    title: 'Son Haberler',
+    subtitle: 'GÜNCEL GELİŞMELER',
+    content: 'Köyümüzden en güncel haberler ve gelişmeler'
+})
+
+// Galeri bölümü için dinamik içerik
+const gallerySection = computed(() => getSectionContent('gallery') || {
+    title: 'Galeri',
+    subtitle: 'FOTOĞRAFLAR',
+    content: 'Köyümüzden seçkin fotoğraflar'
 })
 
 const heroImages = [
@@ -434,6 +453,26 @@ const heroImages = [
     'https://cdn.pixabay.com/photo/2017/02/22/20/02/village-2090495_1280.jpg',
     'https://cdn.pixabay.com/photo/2014/03/03/16/12/village-279013_1280.jpg'
 ]
+
+onMounted(async () => {
+    try {
+        // Sayfa içeriğini getir
+        const content = await usePageContentStore().fetchPageContent('index')
+        if (content) {
+            pageContent.value = content
+        }
+
+        // Diğer verileri getir
+        await Promise.all([
+            usePhotoStore().fetchPhotos(),
+            useNewsStore().fetchNews(),
+            useEventStore().fetchEvents(),
+            useEventStore().fetchUpcomingEvents()
+        ])
+    } catch (error) {
+        console.error('Veriler yüklenirken hata:', error)
+    }
+})
 </script>
 
 <style scoped>
@@ -555,7 +594,8 @@ const heroImages = [
     border-right: none;
 }
 
-.news-carousel, .gallery-carousel {
+.news-carousel,
+.gallery-carousel {
     overflow: visible !important;
 }
 
@@ -707,6 +747,7 @@ const heroImages = [
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -717,6 +758,7 @@ const heroImages = [
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -726,9 +768,11 @@ const heroImages = [
     0% {
         box-shadow: 0 0 0 0 rgba(9, 194, 86, 0.4);
     }
+
     70% {
         box-shadow: 0 0 0 10px rgba(9, 194, 86, 0);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(9, 194, 86, 0);
     }
@@ -739,28 +783,28 @@ const heroImages = [
         border-right: none;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
-    
+
     .feature-item:last-child {
         border-bottom: none;
     }
-    
+
     /* Hero kısmı için responsive ayarlar */
     .hero-carousel {
         margin-top: 30px;
         height: auto !important;
         max-height: 380px;
     }
-    
+
     /* Haberler carousel için responsive ayarlar */
     .news-carousel {
         height: auto !important;
         padding-bottom: 50px;
     }
-    
+
     .news-description {
         min-height: 60px;
     }
-    
+
     /* Galeri carousel için responsive ayarlar */
     .gallery-carousel {
         height: auto !important;
@@ -773,33 +817,33 @@ const heroImages = [
         min-height: auto;
         padding: 60px 0;
     }
-    
+
     .hero-content {
         padding-bottom: 30px;
     }
-    
+
     .event-card {
         padding: 20px !important;
     }
-    
+
     .event-countdown {
         margin: 0 auto;
         max-width: 90%;
     }
-    
+
     .countdown-item {
         min-width: 60px;
         padding: 8px;
     }
-    
+
     .countdown-item .text-h4 {
         font-size: 1.5rem !important;
     }
-    
+
     .news-description {
         min-height: 40px;
     }
-    
+
     .d-flex.flex-wrap.gap-3 {
         justify-content: center;
     }
@@ -809,51 +853,53 @@ const heroImages = [
     .hero-carousel {
         max-height: 300px;
     }
-    
+
     .text-h2 {
         font-size: 2rem !important;
     }
-    
+
     .event-countdown .d-flex {
         flex-wrap: wrap;
         justify-content: center;
         gap: 10px;
     }
-    
+
     .countdown-item {
         flex: 0 0 calc(33% - 10px);
     }
-    
+
     .text-center {
         padding: 0 15px;
     }
 }
 
 @media (max-width: 480px) {
-    .news-card, .gallery-card {
+
+    .news-card,
+    .gallery-card {
         margin-bottom: 20px;
     }
-    
+
     .v-carousel__controls {
         margin-bottom: -20px;
     }
-    
+
     .hero-content .d-flex {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .hero-content .v-btn {
         margin-right: 0 !important;
         margin-bottom: 10px;
         width: 100%;
     }
-    
+
     .countdown-item {
         min-width: 55px;
         padding: 6px;
     }
-    
+
     .section-divider {
         margin: 0 auto;
     }

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
+import { useNuxtApp } from '#app'
 
 export const useGalleryStore = defineStore('gallery', {
     state: () => ({
@@ -10,10 +11,11 @@ export const useGalleryStore = defineStore('gallery', {
 
     actions: {
         async fetchPhotos(category = 'all') {
+            const { $api } = useNuxtApp()
             try {
                 this.loading = true
-                // API endpoint'i buraya gelecek
-                const response = await $fetch(`API_URL/gallery${category !== 'all' ? `?category=${category}` : ''}`)
+                // API endpoint'i kullanıyoruz
+                const response = await $api(`/gallery${category !== 'all' ? `?category=${category}` : ''}`)
                 this.photos = response
             } catch (error) {
                 this.error = error.message
@@ -24,28 +26,29 @@ export const useGalleryStore = defineStore('gallery', {
         },
 
         async uploadPhoto(photoData) {
+            const { $api } = useNuxtApp()
             try {
                 this.loading = true
-                
+
                 // Auth store'dan token'ı al
                 const authStore = useAuthStore();
                 if (!authStore.token) {
                     authStore.getTokenFromCookie();
                 }
-                
+
                 if (!authStore.token) {
                     this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
                     return { success: false, message: this.error };
                 }
-                
+
                 const formData = new FormData()
                 formData.append('image', photoData.file)
                 formData.append('title', photoData.title)
                 formData.append('description', photoData.description)
                 formData.append('category', photoData.category)
 
-                // API endpoint'i buraya gelecek
-                const response = await $fetch('API_URL/gallery', {
+                // API endpoint'i kullanıyoruz
+                const response = await $api('/gallery', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -63,22 +66,23 @@ export const useGalleryStore = defineStore('gallery', {
         },
 
         async deletePhoto(photoId) {
+            const { $api } = useNuxtApp()
             try {
                 this.loading = true
-                
+
                 // Auth store'dan token'ı al
                 const authStore = useAuthStore();
                 if (!authStore.token) {
                     authStore.getTokenFromCookie();
                 }
-                
+
                 if (!authStore.token) {
                     this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
                     return { success: false, message: this.error };
                 }
-                
-                // API endpoint'i buraya gelecek
-                await $fetch(`API_URL/gallery/${photoId}`, {
+
+                // API endpoint'i kullanıyoruz
+                await $api(`/gallery/${photoId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${authStore.token}`
@@ -97,20 +101,21 @@ export const useGalleryStore = defineStore('gallery', {
         },
 
         async updatePhoto(photoId, photoData) {
+            const { $api } = useNuxtApp()
             try {
                 this.loading = true
-                
+
                 // Auth store'dan token'ı al
                 const authStore = useAuthStore();
                 if (!authStore.token) {
                     authStore.getTokenFromCookie();
                 }
-                
+
                 if (!authStore.token) {
                     this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
                     return { success: false, message: this.error };
                 }
-                
+
                 const formData = new FormData()
                 if (photoData.file) {
                     formData.append('image', photoData.file)
@@ -119,8 +124,8 @@ export const useGalleryStore = defineStore('gallery', {
                 formData.append('description', photoData.description)
                 formData.append('category', photoData.category)
 
-                // API endpoint'i buraya gelecek
-                const response = await $fetch(`API_URL/gallery/${photoId}`, {
+                // API endpoint'i kullanıyoruz
+                const response = await $api(`/gallery/${photoId}`, {
                     method: 'PUT',
                     body: formData,
                     headers: {
@@ -141,8 +146,8 @@ export const useGalleryStore = defineStore('gallery', {
     getters: {
         getPhotos: (state) => state.photos,
         getPhotosByCategory: (state) => (category) => {
-            return category === 'all' 
-                ? state.photos 
+            return category === 'all'
+                ? state.photos
                 : state.photos.filter(photo => photo.category === category)
         },
         isLoading: (state) => state.loading,

@@ -18,7 +18,7 @@
               <h3 class="text-h6 font-weight-bold mb-0">BULAMDER</h3>
             </div>
             <p class="text-body-2 mb-3 footer-text">
-              Bulanık Kültür ve Dayanışma Derneği, hemşehrilerimiz arasındaki 
+              Bulam Derneği Kültür ve Dayanışma Derneği, hemşehrilerimiz arasındaki 
               birlik ve beraberlik duygularını güçlendirmek amacıyla kurulmuştur.
             </p>
             <div class="d-flex">
@@ -54,9 +54,8 @@
                       :key="i"
                       :to="link.to"
                       class="footer-list-item pa-0 mb-1"
-                      active-color="white"
-                      density="compact"
                       color="white"
+                      density="compact"
                       min-height="32"
                     >
                       <template v-slot:prepend>
@@ -75,9 +74,8 @@
                       :key="i"
                       :to="link.to"
                       class="footer-list-item pa-0 mb-1"
-                      active-color="white"
-                      density="compact" 
                       color="white"
+                      density="compact" 
                       min-height="32"
                     >
                       <template v-slot:prepend>

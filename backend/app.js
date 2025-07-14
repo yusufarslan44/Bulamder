@@ -10,6 +10,8 @@ const eventRoutes = require("./routes/eventRoutes");
 const statisticRoutes = require("./routes/statisticRoutes");
 const newsRoute = require("./routes/newsRoute");
 const authRoute = require("./routes/authRoute");
+const pageContentRoutes = require("./routes/pageContentRoutes");
+
 // Create Express app
 const app = express();
 
@@ -24,6 +26,7 @@ app.use("/api/events", eventRoutes);
 app.use('/api/auth', authRoute)
 app.use("/api/news", newsRoute);
 app.use("/api/statistics", statisticRoutes);
+app.use("/api/page-contents", pageContentRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Çelikhan Köyü API" });

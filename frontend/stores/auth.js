@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useNuxtApp } from '#app'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -29,10 +30,11 @@ export const useAuthStore = defineStore('auth', {
 
 
         async fetchUpcomingAuth() {
+            const { $api } = useNuxtApp()
             this.loading = true
             this.error = null
             try {
-                const response = await $fetch('http://localhost:5000/api/auth/upcoming')
+                const response = await $api('/auth/upcoming')
                 this.upcomingAuth = response || []
             } catch (error) {
                 console.error('Yaklaşan etkinlikler yüklenirken hata:', error)
@@ -71,20 +73,21 @@ export const useAuthStore = defineStore('auth', {
 
         // Login işlemi
         async loginAuth(credentials) {
+            const { $api } = useNuxtApp()
             try {
                 // Credentials objeyse JSON.stringify yap
                 if (typeof credentials === 'object') {
                     credentials = JSON.stringify(credentials);
                 }
-                
-                const response = await $fetch('http://localhost:5000/api/auth/login', {
+
+                const response = await $api('/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: credentials
                 })
-                
+
                 // Token'ı cookie'ye kaydet
                 if (response.token) {
                     this.setTokenToCookie(response.token)
@@ -107,18 +110,15 @@ export const useAuthStore = defineStore('auth', {
 
         // Register işlemi
         async registerAuth(credentials) {
+            const { $api } = useNuxtApp()
             try {
-                const response = await fetch('http://localhost:5000/api/auth/register', {
+                const response = await $api('/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: credentials
                 })
-
-                if (!response.ok) {
-                    throw new Error('Kayıt başarısız')
-                }
 
                 return true
             } catch (error) {
@@ -137,14 +137,15 @@ export const useAuthStore = defineStore('auth', {
             return this.getTokenFromCookie()
         },
 
-     
-       
-   
+
+
+
         async deleteAuth(authId) {
+            const { $api } = useNuxtApp()
             this.loading = true
             this.error = null
             try {
-                const response = await $fetch(`http://localhost:5000/api/auth/${authId}`, {
+                const response = await $api(`/auth/${authId}`, {
                     method: 'DELETE'
                 })
                 console.log("response  delete", response);

@@ -3,11 +3,12 @@
         <!-- Başlık -->
         <v-row justify="center" class="mb-12">
             <v-col cols="12" md="8" class="text-center">
-                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">BİZ KİMİZ</span>
-                <h1 class="text-h3 font-weight-bold mb-3">Hakkımızda</h1>
+                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">{{
+                    aboutHeaderSection.subtitle }}</span>
+                <h1 class="text-h3 font-weight-bold mb-3">{{ aboutHeaderSection.title }}</h1>
                 <div class="section-divider mx-auto mb-4"></div>
                 <p class="text-body-1">
-                    Yenilikçi çözümler ve profesyonel hizmet anlayışıyla Çelikhan'ın gelişimine katkı sağlıyoruz.
+                    {{ aboutHeaderSection.content }}
                 </p>
             </v-col>
         </v-row>
@@ -21,10 +22,10 @@
                             <div class="card-icon-container mb-4">
                                 <v-icon icon="mdi-eye" color="white" size="32"></v-icon>
                             </div>
-                            <v-card-title class="text-h4 mb-4 font-weight-bold">Vizyonumuz</v-card-title>
+                            <v-card-title class="text-h4 mb-4 font-weight-bold">{{ visionMissionSection.vision.title
+                                }}</v-card-title>
                             <v-card-text class="text-body-1">
-                                Dijital dünyada öncü ve yenilikçi çözümlerle, müşterilerimizin ihtiyaçlarını en iyi şekilde
-                                karşılayan, güvenilir ve tercih edilen bir teknoloji partneri olmak.
+                                {{ visionMissionSection.vision.content }}
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -34,10 +35,10 @@
                             <div class="card-icon-container mb-4">
                                 <v-icon icon="mdi-flag" color="white" size="32"></v-icon>
                             </div>
-                            <v-card-title class="text-h4 mb-4 font-weight-bold">Misyonumuz</v-card-title>
+                            <v-card-title class="text-h4 mb-4 font-weight-bold">{{ visionMissionSection.mission.title
+                                }}</v-card-title>
                             <v-card-text class="text-body-1">
-                                En son teknolojileri kullanarak, müşterilerimizin dijital dönüşüm süreçlerinde yanlarında
-                                olmak ve sürdürülebilir başarı hikayeleri yazmalarına katkıda bulunmak.
+                                {{ visionMissionSection.mission.content }}
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -46,27 +47,31 @@
         </v-row>
 
         <!-- İstatistikler -->
-        <v-row class="mb-16" justify="center">
+     <!-- <v-row class="mb-16" justify="center">
             <v-col cols="12" md="10">
                 <v-card color="primary" class="pa-8 rounded-xl stats-card" elevation="5">
                     <v-row>
-                        <v-col v-for="(stat, index) in stats" :key="index" cols="6" md="3" class="text-center stat-item">
-                            <div class="stat-value text-h2 font-weight-bold text-white mb-2 counter-animation">{{ stat.value }}</div>
+                        <v-col v-for="(stat, index) in stats" :key="index" cols="6" md="3"
+                            class="text-center stat-item">
+                            <div class="stat-value text-h2 font-weight-bold text-white mb-2 counter-animation">{{
+                                stat.value }}</div>
                             <div class="stat-label text-body-1 text-white-darken-1">{{ stat.label }}</div>
                         </v-col>
                     </v-row>
                 </v-card>
             </v-col>
         </v-row>
-
+        
+--> 
         <!-- Ekibimiz -->
         <v-row justify="center" class="mb-8">
             <v-col cols="12" md="8" class="text-center">
-                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">TAKIM</span>
-                <h2 class="text-h4 font-weight-bold mb-3">Ekibimiz</h2>
+                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">{{ teamSection.subtitle
+                    }}</span>
+                <h2 class="text-h4 font-weight-bold mb-3">{{ teamSection.title }}</h2>
                 <div class="section-divider mx-auto mb-4"></div>
                 <p class="text-body-1 mb-8">
-                    Profesyonel ve deneyimli ekibimizle hizmetinizdeyiz
+                    {{ teamSection.content }}
                 </p>
             </v-col>
         </v-row>
@@ -74,7 +79,8 @@
         <v-row justify="center">
             <v-col cols="12" md="10">
                 <v-row>
-                    <v-col v-for="(member, index) in team" :key="index" cols="12" sm="6" md="3" class="fade-in-item" :style="{ 'animation-delay': `${index * 0.15}s` }">
+                    <v-col v-for="(member, index) in team" :key="index" cols="12" sm="6" md="3" class="fade-in-item"
+                        :style="{ 'animation-delay': `${index * 0.15}s` }">
                         <v-card class="team-card rounded-xl overflow-hidden" elevation="3">
                             <div class="image-container">
                                 <v-img :src="member.image" height="300" cover class="team-image">
@@ -88,7 +94,8 @@
                             </div>
                             <v-card-item class="text-center pa-4">
                                 <v-card-title class="text-h5 font-weight-bold mb-1">{{ member.name }}</v-card-title>
-                                <v-chip color="primary" size="small" class="mb-3 position-chip">{{ member.position }}</v-chip>
+                                <v-chip color="primary" size="small" class="mb-3 position-chip">{{ member.position
+                                    }}</v-chip>
                                 <v-card-text class="text-body-2">{{ member.description }}</v-card-text>
                             </v-card-item>
                             <v-card-actions class="justify-center pa-4 social-actions">
@@ -104,8 +111,9 @@
         <!-- Değerlerimiz -->
         <v-row justify="center" class="mt-16">
             <v-col cols="12" md="8" class="text-center">
-                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">PRENSİPLER</span>
-                <h2 class="text-h4 font-weight-bold mb-3">Değerlerimiz</h2>
+                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">{{ valuesSection.subtitle
+                    }}</span>
+                <h2 class="text-h4 font-weight-bold mb-3">{{ valuesSection.title }}</h2>
                 <div class="section-divider mx-auto mb-4"></div>
             </v-col>
         </v-row>
@@ -118,7 +126,8 @@
                             <div class="d-flex justify-center mb-4">
                                 <v-icon :icon="value.icon" color="primary" size="42"></v-icon>
                             </div>
-                            <v-card-title class="text-h6 text-center font-weight-bold mb-3">{{ value.title }}</v-card-title>
+                            <v-card-title class="text-h6 text-center font-weight-bold mb-3">{{ value.title
+                                }}</v-card-title>
                             <v-card-text class="text-body-2 text-center">
                                 {{ value.description }}
                             </v-card-text>
@@ -131,78 +140,146 @@
 </template>
 
 <script setup>
-const stats = [
-    { value: '10+', label: 'Yıllık Tecrübe' },
-    { value: '500+', label: 'Mutlu Müşteri' },
-    { value: '150+', label: 'Tamamlanan Proje' },
-    { value: '24/7', label: 'Destek' }
-]
+import { ref, onMounted, computed } from 'vue'
+import { usePageContentStore } from '~/stores/pageContent'
 
-const team = [
-    {
-        image: 'https://cdn.pixabay.com/photo/2019/11/10/11/13/businessman-4615724_1280.jpg',
-        name: 'Ahmet Yılmaz',
-        position: 'CEO & Kurucu',
-        description: '15 yıllık sektör tecrübesi ile şirketimizi yönetiyor.',
-        social: [
-            { icon: 'mdi-linkedin', link: '#' },
-            { icon: 'mdi-twitter', link: '#' }
-        ]
-    },
-    {
-        image: 'https://cdn.pixabay.com/photo/2021/03/02/12/04/woman-6062804_1280.jpg',
-        name: 'Ayşe Kaya',
-        position: 'Teknoloji Direktörü',
-        description: 'Yazılım geliştirme süreçlerini yönetiyor.',
-        social: [
-            { icon: 'mdi-linkedin', link: '#' },
-            { icon: 'mdi-github', link: '#' }
-        ]
-    },
-    {
-        image: 'https://cdn.pixabay.com/photo/2019/11/10/11/13/businessman-4615723_1280.jpg',
-        name: 'Mehmet Demir',
-        position: 'Tasarım Lideri',
-        description: 'Kullanıcı deneyimi ve arayüz tasarımından sorumlu.',
-        social: [
-            { icon: 'mdi-linkedin', link: '#' },
-            { icon: 'mdi-dribbble', link: '#' }
-        ]
-    },
-    {
-        image: 'https://cdn.pixabay.com/photo/2021/03/02/12/03/woman-6062802_1280.jpg',
-        name: 'Zeynep Şahin',
-        position: 'Proje Yöneticisi',
-        description: 'Müşteri ilişkileri ve proje yönetimini üstleniyor.',
-        social: [
-            { icon: 'mdi-linkedin', link: '#' },
-            { icon: 'mdi-twitter', link: '#' }
-        ]
-    }
-]
+// Sayfa içeriğini tutan reactive ref
+const pageContent = ref(null)
 
-const values = [
-    {
-        icon: 'mdi-shield-check',
-        title: 'Güvenilirlik',
-        description: 'Verdiğimiz sözleri tutarız, gizlilik ve güvenlik en önemli önceliklerimizdir.'
-    },
-    {
-        icon: 'mdi-lightbulb',
-        title: 'Yenilikçilik',
-        description: 'Teknoloji ve trendleri yakından takip eder, sürekli gelişime önem veririz.'
-    },
-    {
-        icon: 'mdi-handshake',
-        title: 'İşbirliği',
-        description: 'Müşterilerimizle güçlü ilişkiler kurar, takım ruhuyla hareket ederiz.'
-    },
-    {
-        icon: 'mdi-heart',
-        title: 'Tutku',
-        description: 'İşimizi seviyoruz ve en iyisini sunmak için çalışıyoruz.'
+// Sayfa içeriğini getir
+onMounted(async () => {
+    try {
+        const content = await usePageContentStore().fetchPageContent('hakkimizda')
+        if (content) {
+            pageContent.value = content
+        }
+    } catch (error) {
+        console.error('Sayfa içeriği yüklenirken hata:', error)
     }
-]
+})
+
+// Bölüm içerik getirme fonksiyonu
+const getSectionContent = (sectionName) => {
+    if (!pageContent.value || !pageContent.value.sections) return null
+    return pageContent.value.sections.find(section => section.sectionName === sectionName)
+}
+
+// Hakkımızda başlık bölümü
+const aboutHeaderSection = computed(() => getSectionContent('header') || {
+    title: 'Hakkımızda',
+    subtitle: 'BİZ KİMİZ',
+    content: 'Yenilikçi çözümler ve profesyonel hizmet anlayışıyla Çelikhan\'ın gelişimine katkı sağlıyoruz.'
+})
+
+// Vizyon & Misyon bölümü
+const visionMissionSection = computed(() => {
+    // Bu bölümleri ayrı ayrı getir
+    const vision = getSectionContent('vision') || {
+        title: 'Vizyonumuz',
+        content: 'Dijital dünyada öncü ve yenilikçi çözümlerle, müşterilerimizin ihtiyaçlarını en iyi şekilde karşılayan, güvenilir ve tercih edilen bir teknoloji partneri olmak.'
+    }
+
+    const mission = getSectionContent('mission') || {
+        title: 'Misyonumuz',
+        content: 'En son teknolojileri kullanarak, müşterilerimizin dijital dönüşüm süreçlerinde yanlarında olmak ve sürdürülebilir başarı hikayeleri yazmalarına katkıda bulunmak.'
+    }
+
+    return { vision, mission }
+})
+
+// İstatistikler bölümü
+const statsSection = computed(() => getSectionContent('stats') || {
+    title: 'İstatistikler',
+    subtitle: 'RAKAMLARLA BİZ',
+    stats: [
+        { value: '10+', label: 'Yıllık Tecrübe' },
+        { value: '500+', label: 'Mutlu Müşteri' },
+        { value: '150+', label: 'Tamamlanan Proje' },
+        { value: '24/7', label: 'Destek' }
+    ]
+})
+
+// Ekibimiz bölümü
+const teamSection = computed(() => getSectionContent('team') || {
+    title: 'Ekibimiz',
+    subtitle: 'TAKIM',
+    content: 'Profesyonel ve deneyimli ekibimizle hizmetinizdeyiz',
+    members: [
+        {
+            image: 'https://cdn.pixabay.com/photo/2019/11/10/11/13/businessman-4615724_1280.jpg',
+            name: 'Ahmet Yılmaz',
+            position: 'CEO & Kurucu',
+            description: '15 yıllık sektör tecrübesi ile şirketimizi yönetiyor.',
+            social: [
+                { icon: 'mdi-linkedin', link: '#' },
+                { icon: 'mdi-twitter', link: '#' }
+            ]
+        },
+        {
+            image: 'https://cdn.pixabay.com/photo/2021/03/02/12/04/woman-6062804_1280.jpg',
+            name: 'Ayşe Kaya',
+            position: 'Teknoloji Direktörü',
+            description: 'Yazılım geliştirme süreçlerini yönetiyor.',
+            social: [
+                { icon: 'mdi-linkedin', link: '#' },
+                { icon: 'mdi-github', link: '#' }
+            ]
+        },
+        {
+            image: 'https://cdn.pixabay.com/photo/2019/11/10/11/13/businessman-4615723_1280.jpg',
+            name: 'Mehmet Demir',
+            position: 'Tasarım Lideri',
+            description: 'Kullanıcı deneyimi ve arayüz tasarımından sorumlu.',
+            social: [
+                { icon: 'mdi-linkedin', link: '#' },
+                { icon: 'mdi-dribbble', link: '#' }
+            ]
+        },
+        {
+            image: 'https://cdn.pixabay.com/photo/2021/03/02/12/03/woman-6062802_1280.jpg',
+            name: 'Zeynep Şahin',
+            position: 'Proje Yöneticisi',
+            description: 'Müşteri ilişkileri ve proje yönetimini üstleniyor.',
+            social: [
+                { icon: 'mdi-linkedin', link: '#' },
+                { icon: 'mdi-twitter', link: '#' }
+            ]
+        }
+    ]
+})
+
+// Değerlerimiz bölümü
+const valuesSection = computed(() => getSectionContent('values') || {
+    title: 'Değerlerimiz',
+    subtitle: 'PRENSİPLER',
+    values: [
+        {
+            icon: 'mdi-shield-check',
+            title: 'Güvenilirlik',
+            description: 'Verdiğimiz sözleri tutarız, gizlilik ve güvenlik en önemli önceliklerimizdir.'
+        },
+        {
+            icon: 'mdi-lightbulb',
+            title: 'Yenilikçilik',
+            description: 'Teknoloji ve trendleri yakından takip eder, sürekli gelişime önem veririz.'
+        },
+        {
+            icon: 'mdi-handshake',
+            title: 'İşbirliği',
+            description: 'Müşterilerimizle güçlü ilişkiler kurar, takım ruhuyla hareket ederiz.'
+        },
+        {
+            icon: 'mdi-heart',
+            title: 'Tutku',
+            description: 'İşimizi seviyoruz ve en iyisini sunmak için çalışıyoruz.'
+        }
+    ]
+})
+
+// Sayfa içeriği yoksa varsayılan değerleri kullan
+const stats = computed(() => statsSection.value.stats)
+const team = computed(() => teamSection.value.members)
+const values = computed(() => valuesSection.value.values)
 </script>
 
 <style scoped>
@@ -334,6 +411,7 @@ const values = [
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -345,6 +423,7 @@ const values = [
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -355,7 +434,7 @@ const values = [
     .stat-item:nth-child(2n)::after {
         display: none;
     }
-    
+
     .stat-item:not(:nth-child(2n))::after {
         content: '';
         position: absolute;

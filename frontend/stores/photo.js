@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
-
-const API_URL = 'http://localhost:5000/api'
+import { useNuxtApp } from '#app'
 
 export const usePhotoStore = defineStore('photo', {
   state: () => ({
@@ -13,10 +12,11 @@ export const usePhotoStore = defineStore('photo', {
   actions: {
     // Tüm fotoğrafları getir
     async fetchPhotos() {
+      const { $api } = useNuxtApp()
       this.loading = true
       this.error = null
       try {
-        const response = await $fetch(`${API_URL}/photos`)
+        const response = await $api('/photos')
         console.log("pinia foto data", response);
         this.photos = response
       } catch (error) {
@@ -29,10 +29,11 @@ export const usePhotoStore = defineStore('photo', {
 
     // Kategoriye göre fotoğrafları getir
     async fetchPhotosByCategory(category) {
+      const { $api } = useNuxtApp()
       this.loading = true
       this.error = null
       try {
-        const response = await $fetch(`${API_URL}/photos/category/${category}`)
+        const response = await $api(`/photos/category/${category}`)
         this.photos = response
       } catch (error) {
         console.error('Fotoğraflar yüklenirken hata:', error)
@@ -44,22 +45,23 @@ export const usePhotoStore = defineStore('photo', {
 
     // Yeni fotoğraf yükle
     async uploadPhoto(formData) {
+      const { $api } = useNuxtApp()
       this.loading = true
       this.error = null
-      
+
       // Auth store'dan token'ı al
       const authStore = useAuthStore();
       if (!authStore.token) {
         authStore.getTokenFromCookie();
       }
-      
+
       if (!authStore.token) {
         this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
         return { success: false, message: this.error };
       }
-      
+
       try {
-        const response = await $fetch(`${API_URL}/photos`, {
+        const response = await $api('/photos', {
           method: 'POST',
           body: formData,
           headers: {
@@ -82,22 +84,23 @@ export const usePhotoStore = defineStore('photo', {
 
     // Fotoğraf sil
     async deletePhoto(photoId) {
+      const { $api } = useNuxtApp()
       this.loading = true
       this.error = null
-      
+
       // Auth store'dan token'ı al
       const authStore = useAuthStore();
       if (!authStore.token) {
         authStore.getTokenFromCookie();
       }
-      
+
       if (!authStore.token) {
         this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
         return { success: false, message: this.error };
       }
-      
+
       try {
-        await $fetch(`${API_URL}/photos/${photoId}`, {
+        await $api(`/photos/${photoId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${authStore.token}`

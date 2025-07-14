@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { useAuthStore } from './auth'
-
-const API_URL = 'http://localhost:5000/api'
+import { useNuxtApp } from '#app'
 
 export const useStatisticStore = defineStore('statistic', {
   state: () => ({
@@ -13,10 +12,11 @@ export const useStatisticStore = defineStore('statistic', {
   actions: {
     // İstatistikleri getir
     async fetchStatistics() {
+      const { $api } = useNuxtApp()
       this.loading = true
       this.error = null
       try {
-        // const response = await $fetch(`${API_URL}/statistics`)
+        // const response = await $api('/statistics')
         // this.statistics = response
       } catch (error) {
         console.error('İstatistikler yüklenirken hata:', error)
@@ -28,19 +28,20 @@ export const useStatisticStore = defineStore('statistic', {
 
     // Ziyaretçi sayısını artır
     async incrementVisitorCount() {
+      const { $api } = useNuxtApp()
       try {
         // Auth store'dan token'ı al
         const authStore = useAuthStore();
         if (!authStore.token) {
           authStore.getTokenFromCookie();
         }
-        
+
         if (!authStore.token) {
           this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
           return { success: false, message: this.error };
         }
-        
-        const response = await $fetch(`${API_URL}/statistics/visitor`, {
+
+        const response = await $api('/statistics/visitor', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${authStore.token}`

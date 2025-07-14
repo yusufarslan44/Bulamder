@@ -33,8 +33,9 @@
                                 density="comfortable" class="rounded-lg" prepend-inner-icon="mdi-text-box" auto-grow rows="4" required></v-textarea>
                         </v-col>
                         <v-col cols="12">
-                            <v-file-input v-model="eventForm.image" label="Etkinlik Görseli" accept="image/*"
-                                variant="outlined" density="comfortable" class="rounded-lg" prepend-icon="mdi-image" required></v-file-input>
+                            <v-file-input v-model="eventForm.image" label="Etkinlik Görselleri" accept="image/*"
+                                variant="outlined" density="comfortable" class="rounded-lg" prepend-icon="mdi-image" 
+                                multiple chips show-size counter required></v-file-input>
                         </v-col>
                         <v-col cols="12">
                             <v-btn type="submit" color="primary" size="large" :loading="eventStore.isLoading" block class="rounded-lg submit-btn">
@@ -191,8 +192,9 @@
                                     density="comfortable" class="rounded-lg" prepend-inner-icon="mdi-text-box" auto-grow rows="4" required></v-textarea>
                             </v-col>
                             <v-col cols="12">
-                                <v-file-input v-model="editEventForm.image" label="Yeni Görsel (İsteğe Bağlı)" accept="image/*"
-                                    variant="outlined" density="comfortable" class="rounded-lg" prepend-icon="mdi-image"></v-file-input>
+                                <v-file-input v-model="editEventForm.image" label="Yeni Görseller (İsteğe Bağlı)" accept="image/*"
+                                    variant="outlined" density="comfortable" class="rounded-lg" prepend-icon="mdi-image"
+                                    multiple chips show-size counter></v-file-input>
                             </v-col>
                         </v-row>
                         <v-card-actions class="px-0 pt-4 pb-0">
@@ -245,7 +247,13 @@ const handleEventCreate = async () => {
     formData.append('date', eventForm.value.date)
     formData.append('endDate', eventForm.value.endDate)
     formData.append('location', eventForm.value.location)
-    formData.append('image', eventForm.value.image[0] || eventForm.value.image);
+    
+    // Birden fazla görsel için döngü ile ekle
+    if (eventForm.value.image && eventForm.value.image.length) {
+        for (let i = 0; i < eventForm.value.image.length; i++) {
+            formData.append('images', eventForm.value.image[i]);
+        }
+    }
 
     const result = await eventStore.createEvent(formData)
     if (result.success) {
@@ -294,15 +302,10 @@ const handleEventUpdate = async () => {
     formData.append('endDate', editEventForm.value.endDate)
     formData.append('location', editEventForm.value.location)
 
-    // Resim varsa ekle
-    if (editEventForm.value.image) {
-        // Eğer bir dosya nesnesi ise
-        if (editEventForm.value.image instanceof File) {
-            formData.append('image', editEventForm.value.image);
-        }
-        // Eğer FileList ise
-        else if (editEventForm.value.image[0] instanceof File) {
-            formData.append('image', editEventForm.value.image[0]);
+    // Birden fazla görsel için döngü ile ekle
+    if (editEventForm.value.image && editEventForm.value.image.length) {
+        for (let i = 0; i < editEventForm.value.image.length; i++) {
+            formData.append('images', editEventForm.value.image[i]);
         }
     }
 

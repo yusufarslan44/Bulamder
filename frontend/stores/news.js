@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { useAuthStore } from './auth';
+import { useNuxtApp } from '#app'
 
 export const useNewsStore = defineStore("news", {
   state: () => ({
@@ -14,10 +15,11 @@ export const useNewsStore = defineStore("news", {
   actions: {
     // Tüm etkinlikleri getir
     async fetchNews() {
+      const { $api } = useNuxtApp()
       this.loading = true;
       this.error = null;
       try {
-        const response = await $fetch("http://localhost:5000/api/news/");
+        const response = await $api("/news/");
         console.log("fecht news response", response);
         this.news = response.news;
         console.log("news", this.news);
@@ -30,10 +32,11 @@ export const useNewsStore = defineStore("news", {
     },
 
     async fetchNewsById(id) {
+      const { $api } = useNuxtApp()
       this.loading = true;
       this.error = null;
       try {
-        const response = await $fetch(`http://localhost:5000/api/news/` + id);
+        const response = await $api(`/news/` + id);
         console.log("fecht news detail response", response);
         this.detailNews = response.news;
         return this.detailNews;
@@ -45,10 +48,11 @@ export const useNewsStore = defineStore("news", {
       }
     },
     async fetchRelatedNews(id) {
+      const { $api } = useNuxtApp()
       this.loading = true;
       this.error = null;
       try {
-        const response = await $fetch(`http://localhost:5000/api/news/related/` + id);
+        const response = await $api(`/news/related/` + id);
         console.log("fecht related response", response);
         this.relatedNews = response.relatedNews;
         console.log("relatedNews", this.relatedNews);
@@ -63,10 +67,11 @@ export const useNewsStore = defineStore("news", {
 
     // Yaklaşan etkinlikleri getir
     async fetchUpcomingNews() {
+      const { $api } = useNuxtApp()
       this.loading = true;
       this.error = null;
       try {
-        const response = await $fetch("http://localhost:5000/api/news/upcoming");
+        const response = await $api("/news/upcoming");
         this.upcomingNews = response;
       } catch (error) {
         console.error("Yaklaşan etkinlikler yüklenirken hata:", error);
@@ -78,23 +83,24 @@ export const useNewsStore = defineStore("news", {
 
     // Yeni etkinlik oluştur
     async createNews(formData) {
+      const { $api } = useNuxtApp()
       console.log("çalıştı pina");
       this.loading = true;
       this.error = null;
-      
+
       // Auth store'dan token'ı al
       const authStore = useAuthStore();
       if (!authStore.token) {
         authStore.getTokenFromCookie();
       }
-      
+
       if (!authStore.token) {
         this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
         return { success: false, message: this.error };
       }
-      
+
       try {
-        const response = await $fetch("http://localhost:5000/api/news/", {
+        const response = await $api("/news/", {
           method: 'POST',
           body: formData,
           headers: {
@@ -115,23 +121,24 @@ export const useNewsStore = defineStore("news", {
 
     // Etkinlik güncelle
     async updateNews(newsId, formData) {
+      const { $api } = useNuxtApp()
       this.loading = true;
       this.error = null;
-      
+
       // Auth store'dan token'ı al
       const authStore = useAuthStore();
       if (!authStore.token) {
         authStore.getTokenFromCookie();
       }
-      
+
       if (!authStore.token) {
         this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
         return { success: false, message: this.error };
       }
-      
+
       try {
-        const response = await $fetch(
-          `http://localhost:5000/api/news/${newsId}`,
+        const response = await $api(
+          `/news/${newsId}`,
           {
             method: "PUT",
             headers: {
@@ -161,23 +168,24 @@ export const useNewsStore = defineStore("news", {
 
     // Etkinlik sil
     async deleteNews(newsId) {
+      const { $api } = useNuxtApp()
       this.loading = true;
       this.error = null;
-      
+
       // Auth store'dan token'ı al
       const authStore = useAuthStore();
       if (!authStore.token) {
         authStore.getTokenFromCookie();
       }
-      
+
       if (!authStore.token) {
         this.error = "Yetkilendirme hatası: Oturum açmanız gerekiyor";
         return { success: false, message: this.error };
       }
-      
+
       try {
-        const response = await $fetch(
-          `http://localhost:5000/api/news/${newsId}`,
+        const response = await $api(
+          `/news/${newsId}`,
           {
             method: "DELETE",
             headers: {
@@ -199,20 +207,16 @@ export const useNewsStore = defineStore("news", {
       } finally {
         this.loading = false;
       }
-    },
+    }
   },
 
   getters: {
-    // Tüm etkinlikleri getir
     getNews: (state) => state.news,
-
-    // Yaklaşan etkinlikleri getir
-    getupcomingNews: (state) => state.upcomingNews,
-
-    // Yükleniyor durumunu getir
+    getUpcomingNews: (state) => state.upcomingNews,
     isLoading: (state) => state.loading,
-
-    // Hata durumunu getir
     getError: (state) => state.error,
+    getNewsById: (state) => (id) => state.news.find((news) => news._id === id),
+    getDetailNews: (state) => state.detailNews,
+    getRelatedNews: (state) => state.relatedNews
   },
 });
