@@ -1,31 +1,77 @@
-const Photo = require('../models/Photo');
-const cloudinary = require('../config/cloudinary');
+const path = require("path");
 const fs = require("fs");
+const Photo = require("../models/Photo");
+const { toAbsoluteUrl } = require("../utils/filePaths");
+
+const fsPromises = fs.promises;
+
+const cleanupFiles = async (filePaths = []) => {
+  for (const filePath of filePaths) {
+    if (!filePath) continue;
+
+    try {
+      await fsPromises.unlink(filePath);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        console.error("Dosya temizlenemedi:", filePath, error);
+      }
+    }
+  }
+};
+
+const deleteLocalFile = async (relativePath) => {
+  if (!relativePath || !relativePath.startsWith("/uploads/")) {
+    return;
+  }
+
+  const absolutePath = path.join(
+    __dirname,
+    "..",
+    relativePath.replace(/^\//, "")
+  );
+
+  try {
+    await fsPromises.unlink(absolutePath);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Yerel dosya silinemedi:", absolutePath, error);
+    }
+  }
+};
+
+const formatPhoto = (photoDoc, req) => {
+  if (!photoDoc) return null;
+  const photo =
+    typeof photoDoc.toObject === "function" ? photoDoc.toObject() : { ...photoDoc };
+
+  photo.imageUrl = toAbsoluteUrl(req, photo.imageUrl);
+
+  return photo;
+};
 // Fotoğraf yükle
 exports.uploadPhoto = async (req, res) => {
   console.log("req body", req.body);
   console.log("req file", req.file);
+  const tempFiles = [];
   try {
-    let imageUrl = '';
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ message: "Lütfen bir fotoğraf dosyası yükleyin" });
+    }
 
+    const imageUrl = `/uploads/${req.file.filename}`;
+    tempFiles.push(req.file.path);
 
-    // Cloudinary'ye yükle
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'celikhan/photos',
-      resource_type: 'auto'
-    });
-
-    imageUrl = result.secure_url;
-
-    fs.unlinkSync(req.file.path);
-    const photo = new Photo({
+    const photoDoc = new Photo({
       title: req.body.title,
       description: req.body.description,
       category: req.body.category,
-      imageUrl: imageUrl
+      imageUrl: imageUrl,
     });
 
-    await photo.save();
+    await photoDoc.save();
+    const photo = formatPhoto(photoDoc, req);
 
     res.status(201).json({
       message: 'Fotoğraf başarıyla yüklendi',
@@ -33,6 +79,7 @@ exports.uploadPhoto = async (req, res) => {
     });
   } catch (error) {
     console.error('Fotoğraf yükleme hatası:', error);
+    await cleanupFiles(tempFiles);
     res.status(500).json({ message: 'Fotoğraf yüklenirken bir hata oluştu' });
   }
 };
@@ -41,7 +88,7 @@ exports.uploadPhoto = async (req, res) => {
 exports.getAllPhotos = async (req, res) => {
   try {
     const photos = await Photo.find().sort({ createdAt: -1 });
-    res.json(photos);
+    res.json(photos.map((photo) => formatPhoto(photo, req)));
   } catch (error) {
     res.status(500).json({ message: 'Fotoğraflar getirilirken bir hata oluştu' });
   }
@@ -54,7 +101,7 @@ exports.getPhotosByCategory = async (req, res) => {
       category: req.params.category
     }).sort({ createdAt: -1 });
 
-    res.json(photos);
+    res.json(photos.map((photo) => formatPhoto(photo, req)));
   } catch (error) {
     res.status(500).json({ message: 'Fotoğraflar getirilirken bir hata oluştu' });
   }
@@ -68,11 +115,7 @@ exports.deletePhoto = async (req, res) => {
       return res.status(404).json({ message: 'Fotoğraf bulunamadı' });
     }
 
-    // Resmi Cloudinary'den sil
-    if (photo.imageUrl) {
-      const publicId = photo.imageUrl.split('/').pop().split('.')[0];
-      await cloudinary.uploader.destroy('celikhan/photos/' + publicId);
-    }
+    await deleteLocalFile(photo.imageUrl);
 
     await photo.deleteOne();
 

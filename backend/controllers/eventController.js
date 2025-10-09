@@ -1,24 +1,67 @@
-const Event = require('../models/Event');
-const cloudinary = require('../config/cloudinary');
+const path = require("path");
 const fs = require("fs");
+const Event = require("../models/Event");
+const { toAbsoluteUrl } = require("../utils/filePaths");
+
+const fsPromises = fs.promises;
+
+const cleanupFiles = async (filePaths = []) => {
+  for (const filePath of filePaths) {
+    if (!filePath) continue;
+
+    try {
+      await fsPromises.unlink(filePath);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        console.error("Dosya temizlenemedi:", filePath, error);
+      }
+    }
+  }
+};
+
+const deleteLocalFile = async (relativePath) => {
+  if (!relativePath || !relativePath.startsWith("/uploads/")) {
+    return;
+  }
+
+  const absolutePath = path.join(
+    __dirname,
+    "..",
+    relativePath.replace(/^\//, "")
+  );
+
+  try {
+    await fsPromises.unlink(absolutePath);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Yerel dosya silinemedi:", absolutePath, error);
+    }
+  }
+};
+
+const formatEvent = (eventDoc, req) => {
+  if (!eventDoc) return null;
+  const event =
+    typeof eventDoc.toObject === "function" ? eventDoc.toObject() : { ...eventDoc };
+
+  event.imageUrl = toAbsoluteUrl(req, event.imageUrl);
+
+  return event;
+};
 // Etkinlik oluştur
 exports.createEvent = async (req, res) => {
+  const tempFiles = [];
   try {
     console.log("gelen request", req.body);
     console.log("Yüklenen dosya:", req.file);
     let imageUrl = '';
 
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        use_filename: true,
-        folder: "celikhan/events",
-        resource_type: "auto",
-      });
-
-      imageUrl = result.secure_url;
+      imageUrl = `/uploads/${req.file.filename}`;
+      tempFiles.push(req.file.path);
     }
-    fs.unlinkSync(req.file.path);
-    const event = new Event({
+
+    const eventDoc = new Event({
       title: req.body.title,
       description: req.body.description,
       date: new Date(req.body.date),
@@ -28,14 +71,15 @@ exports.createEvent = async (req, res) => {
       program: req.body.program
     });
 
-    await event.save();
+    await eventDoc.save();
 
     res.status(201).json({
       message: 'Etkinlik başarıyla oluşturuldu',
-      event
+      event: formatEvent(eventDoc, req)
     });
   } catch (error) {
     console.error('Etkinlik oluşturma hatası:', error);
+    await cleanupFiles(tempFiles);
     res.status(500).json({ message: 'Etkinlik oluşturulurken bir hata oluştu' });
   }
 };
@@ -45,7 +89,7 @@ exports.getAllEvents = async (req, res) => {
   console.log("get all events");
   try {
     const events = await Event.find().sort({ date: 1 });
-    res.json(events);
+    res.json(events.map((event) => formatEvent(event, req)));
   } catch (error) {
     res.status(500).json({ message: 'Etkinlikler getirilirken bir hata oluştu' });
   }
@@ -57,7 +101,7 @@ exports.getUpcomingEvents = async (req, res) => {
     const events = await Event.find({
       date: { $gte: new Date() }
     }).sort({ date: 1 });
-    res.json(events);
+    res.json(events.map((event) => formatEvent(event, req)));
   } catch (error) {
     res.status(500).json({ message: 'Etkinlikler getirilirken bir hata oluştu' });
   }
@@ -65,41 +109,18 @@ exports.getUpcomingEvents = async (req, res) => {
 
 // Etkinlik güncelle
 exports.updateEvent = async (req, res) => {
+  const tempFiles = [];
   try {
     const event = await Event.findById(req.params.id);
     if (!event) {
-      // Eğer dosya yüklendiyse local dosyayı sil
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
+      await cleanupFiles(req.file ? [req.file.path] : []);
       return res.status(404).json({ message: 'Etkinlik bulunamadı' });
     }
 
-    // Yeni resim yüklendiyse
     if (req.file) {
-      try {
-        // Eski resmi Cloudinary'den sil
-        if (event.imageUrl) {
-          const publicId = event.imageUrl.split('/').pop().split('.')[0];
-          await cloudinary.uploader.destroy('celikhan/events/' + publicId);
-        }
-
-        // Yeni resmi Cloudinary'e yükle
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: 'celikhan/events',
-          resource_type: 'auto'
-        });
-
-        // Cloudinary'e yüklendikten sonra local dosyayı sil
-        fs.unlinkSync(req.file.path);
-
-        // Yeni resim URL'sini güncelle
-        req.body.imageUrl = result.secure_url;
-      } catch (uploadError) {
-        // Cloudinary yüklemesi başarısız olursa local dosyayı sil
-        fs.unlinkSync(req.file.path);
-        throw uploadError;
-      }
+      tempFiles.push(req.file.path);
+      await deleteLocalFile(event.imageUrl);
+      req.body.imageUrl = `/uploads/${req.file.filename}`;
     }
 
     // Gelen body'den sadece izin verilen alanları al
@@ -118,10 +139,11 @@ exports.updateEvent = async (req, res) => {
 
     res.json({
       message: 'Etkinlik başarıyla güncellendi',
-      event
+      event: formatEvent(event, req)
     });
   } catch (error) {
     console.error('Etkinlik güncelleme hatası:', error);
+    await cleanupFiles(tempFiles);
     res.status(500).json({
       message: 'Etkinlik güncellenirken bir hata oluştu',
       error: error.message
@@ -139,11 +161,7 @@ exports.deleteEvent = async (req, res) => {
       return res.status(404).json({ message: 'Etkinlik bulunamadı' });
     }
 
-    // Resmi Cloudinary'den sil
-    if (event.imageUrl) {
-      const publicId = event.imageUrl.split('/').pop().split('.')[0];
-      await cloudinary.uploader.destroy('celikhan/events/' + publicId);
-    }
+    await deleteLocalFile(event.imageUrl);
 
     await event.deleteOne();
 

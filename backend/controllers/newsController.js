@@ -1,70 +1,158 @@
-const News = require("../models/News");
-const cloudinary = require("cloudinary").v2;
+const path = require("path");
+const crypto = require("crypto");
 const fs = require("fs");
 const cheerio = require("cheerio");
+const News = require("../models/News");
+const { toAbsoluteUrl, withAbsoluteUploads } = require("../utils/filePaths");
+
+const uploadsDir = path.join(__dirname, "..", "uploads");
+const fsPromises = fs.promises;
+
+const ensureUploadsDir = async () => {
+  await fsPromises.mkdir(uploadsDir, { recursive: true });
+};
+
+const cleanupFiles = async (filePaths = []) => {
+  for (const filePath of filePaths) {
+    if (!filePath) continue;
+
+    try {
+      await fsPromises.unlink(filePath);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        console.error("Dosya temizliği sırasında hata:", filePath, error);
+      }
+    }
+  }
+};
+
+const deleteLocalFile = async (relativePath) => {
+  if (!relativePath || !relativePath.startsWith("/uploads/")) {
+    return;
+  }
+
+  const absolutePath = path.join(
+    __dirname,
+    "..",
+    relativePath.replace(/^\//, "")
+  );
+
+  try {
+    await fsPromises.unlink(absolutePath);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Yerel dosya silinemedi:", absolutePath, error);
+    }
+  }
+};
+
+const saveBase64Image = async (base64Data, mimeType) => {
+  await ensureUploadsDir();
+
+  const extension =
+    (mimeType && mimeType.split("/")[1]?.split("+")[0]) || "png";
+  const filename = `news-${Date.now()}-${crypto
+    .randomBytes(6)
+    .toString("hex")}.${extension}`;
+  const absolutePath = path.join(uploadsDir, filename);
+
+  await fsPromises.writeFile(absolutePath, Buffer.from(base64Data, "base64"));
+
+  return {
+    url: `/uploads/${filename}`,
+    filePath: absolutePath,
+  };
+};
+
+const processDescription = async (description = "") => {
+  const base64Regex =
+    /<img\s+[^>]*src=["'](data:image\/[^;"']+;base64,([^"']+))["']/g;
+  const matches = [...description.matchAll(base64Regex)];
+  const createdFiles = [];
+  let updatedDescription = description;
+
+  for (const match of matches) {
+    const [, dataUri, base64Data] = match;
+    const mimeType = dataUri.split(";")[0].split(":")[1];
+    const savedImage = await saveBase64Image(base64Data, mimeType);
+    createdFiles.push(savedImage.filePath);
+    updatedDescription = updatedDescription.replace(dataUri, savedImage.url);
+  }
+
+  const $ = cheerio.load(updatedDescription);
+  $("img").each(function () {
+    $(this).attr(
+      "style",
+      "max-width:100%; height:auto; border-radius:8px; display:block; margin:1rem auto;"
+    );
+  });
+
+  const processedHtml = $.html();
+
+  return { description: processedHtml ?? updatedDescription, createdFiles };
+};
+
+const extractLocalImagePaths = (html = "") => {
+  const imageRegex = /<img[^>]*src=["'](\/uploads\/[^"']+)["']/g;
+  const paths = new Set();
+  let match;
+
+  while ((match = imageRegex.exec(html)) !== null) {
+    paths.add(match[1]);
+  }
+
+  return Array.from(paths);
+};
+
+const formatNewsResponse = (newsDoc, req) => {
+  if (!newsDoc) return null;
+  const news =
+    typeof newsDoc.toObject === "function" ? newsDoc.toObject() : { ...newsDoc };
+
+  news.imageUrl = toAbsoluteUrl(req, news.imageUrl);
+  news.description = withAbsoluteUploads(req, news.description);
+
+  return news;
+};
 
 exports.createNews = async (req, res) => {
   console.log("Gelen request body:", req.body);
   console.log("Yüklenen dosya bilgisi:", req.file);
 
+  const tempFiles = [];
+
   try {
+    await ensureUploadsDir();
+
     let imageUrl = "";
-    let description = req.body.description;
+    let description = req.body.description || "";
 
-    // Eğer bir dosya yüklenmişse, Cloudinary'ye yükle
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        use_filename: true,
-        folder: "celikhan/news",
-        resource_type: "auto",
-      });
-
-      imageUrl = result.secure_url;
-
-      // Sunucudaki geçici dosyayı sil
-      fs.unlinkSync(req.file.path);
+      imageUrl = `/uploads/${req.file.filename}`;
+      tempFiles.push(req.file.path);
     }
 
-    // Base64 kodlanmış resimleri bul ve Cloudinary'ye yükle
-    const base64Regex = /<img\s+[^>]*src=["'](data:image\/[^;]+;base64,([^"']+))["']/g;
-    let match;
-    while ((match = base64Regex.exec(description)) !== null) {
-      const base64Data = match[2]; // Base64 verisi
-      const mimeType = match[1].split(";")[0].split(":")[1]; // image/png veya image/jpeg gibi
+    const processed = await processDescription(description);
+    description = processed.description;
+    tempFiles.push(...processed.createdFiles);
 
-      // Cloudinary'ye yükle
-      const uploadResult = await cloudinary.uploader.upload(`data:${mimeType};base64,${base64Data}`, {
-        folder: "celikhan/news",
-        resource_type: "image",
-      });
-
-      // Base64 verisini Cloudinary URL'si ile değiştir
-      description = description.replace(match[1], uploadResult.secure_url);
-    }
-
-    // **Cheerio ile <img> etiketlerini düzenle**
-    const $ = cheerio.load(description);
-    $("img").each(function () {
-      $(this).attr("style", "max-width:100%; height:auto; border-radius:8px; display:block; margin:1rem auto;");
-    });
-
-    // Güncellenmiş HTML'yi al
-    description = $.html();
-
-    // Veritabanına kaydet
-    const news = await News.create({
+    const newsDoc = await News.create({
       title: req.body.title,
-      description: description, // Güncellenmiş HTML
+      description: description,
       category: req.body.category,
       imageUrl: imageUrl,
       isFeatured: req.body.isFeatured === "true",
     });
+
+    const news = formatNewsResponse(newsDoc, req);
 
     res.status(201).json({
       status: "success",
       news,
     });
   } catch (error) {
+    await cleanupFiles(tempFiles);
+
     res.status(500).json({
       status: "fail",
       error: error.message,
@@ -74,8 +162,11 @@ exports.createNews = async (req, res) => {
 
 exports.getAllNews = async (req, res) => {
   try {
-    const news = await News.find().sort("-createdAt");
-    const featuredNews = await News.findOne({ isFeatured: true });
+    const newsDocs = await News.find().sort("-createdAt");
+    const featuredNewsDoc = await News.findOne({ isFeatured: true });
+
+    const news = newsDocs.map((item) => formatNewsResponse(item, req));
+    const featuredNews = formatNewsResponse(featuredNewsDoc, req);
 
     res.status(200).json({
       status: "success",
@@ -93,14 +184,16 @@ exports.getAllNews = async (req, res) => {
 
 exports.getNews = async (req, res) => {
   try {
-    const news = await News.findById(req.params.id);
+    const newsDoc = await News.findById(req.params.id);
 
-    if (!news) {
+    if (!newsDoc) {
       return res.status(404).json({
         status: "fail",
         message: "Haber bulunamadı",
       });
     }
+
+    const news = formatNewsResponse(newsDoc, req);
 
     res.status(200).json({
       status: "success",
@@ -116,9 +209,10 @@ exports.getNews = async (req, res) => {
 
 exports.getNewsByCategory = async (req, res) => {
   try {
-    const news = await News.find({ category: req.params.category }).sort(
+    const newsDocs = await News.find({ category: req.params.category }).sort(
       "-createdAt"
     );
+    const news = newsDocs.map((item) => formatNewsResponse(item, req));
 
     res.status(200).json({
       status: "success",
@@ -148,25 +242,26 @@ exports.getRelatedNews = async (req, res) => {
 
     // Aynı kategorideki diğer haberleri bul, ancak mevcut haberi hariç tut
     // Sadece 3 tane getir ve createdAt'e göre sırala
-    const relatedNews = await News.find({
+    const relatedNewsDocs = await News.find({
       category: currentNews.category,
       _id: { $ne: currentNewsId } // mevcut haberi hariç tut
     })
       .sort("-createdAt")
       .limit(3);
 
-    // Eğer yeterli sayıda benzer haber bulunamazsa, farklı kategorilerden de haber getir
-    if (relatedNews.length < 3) {
+    if (relatedNewsDocs.length < 3) {
       const additionalNews = await News.find({
         _id: { $ne: currentNewsId },
         category: { $ne: currentNews.category }
       })
         .sort("-createdAt")
-        .limit(3 - relatedNews.length);
-
-      // İki sonuç kümesini birleştir
-      relatedNews.push(...additionalNews);
+        .limit(3 - relatedNewsDocs.length);
+      relatedNewsDocs.push(...additionalNews);
     }
+
+    const relatedNews = relatedNewsDocs.map((item) =>
+      formatNewsResponse(item, req)
+    );
 
     res.status(200).json({
       status: "success",
@@ -183,7 +278,8 @@ exports.getRelatedNews = async (req, res) => {
 
 exports.getFeaturedNews = async (req, res) => {
   try {
-    const featuredNews = await News.findOne({ isFeatured: true });
+    const featuredNewsDoc = await News.findOne({ isFeatured: true });
+    const featuredNews = formatNewsResponse(featuredNewsDoc, req);
 
     res.status(200).json({
       status: "success",
@@ -198,11 +294,13 @@ exports.getFeaturedNews = async (req, res) => {
 };
 
 exports.updateNews = async (req, res) => {
-  try {
-    let news = await News.findById(req.params.id);
+  const tempFiles = [];
 
+  try {
+    const news = await News.findById(req.params.id);
 
     if (!news) {
+      await cleanupFiles(req.file ? [req.file.path] : []);
       return res.status(404).json({
         status: "fail",
         message: "Haber bulunamadı",
@@ -210,46 +308,52 @@ exports.updateNews = async (req, res) => {
     }
 
     if (req.file) {
-      // Eski resmi cloudinary'den sil
-      if (news.imageUrl) {
-        const publicId = news.imageUrl.split("/").pop().split(".")[0]; // URL’den dosya adını al
-        await cloudinary.uploader.destroy(`celikhan/news/${publicId}`); // Silme işlemi
-      }
-
-
-      // Yeni resmi yükle
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        use_filename: true,
-        folder: "celikhan/news",
-        resource_type: "auto",
-      });
-
-      // Geçici dosyayı sil
-      fs.unlinkSync(req.file.path);
-
-      news.imageUrl = result.secure_url;
+      tempFiles.push(req.file.path);
+      await deleteLocalFile(news.imageUrl);
+      news.imageUrl = `/uploads/${req.file.filename}`;
     }
 
-    // Eğer haber öne çıkarılacaksa, diğer öne çıkan haberi kaldır
     if (req.body.isFeatured === "true" && !news.isFeatured) {
       await News.updateMany({}, { isFeatured: false });
     }
 
-    news.title = req.body.title || news.title;
-    news.description = req.body.description || news.description;
-    news.category = req.body.category || news.category;
+    if (req.body.title) {
+      news.title = req.body.title;
+    }
+
+    if (req.body.description) {
+      const previousImages = extractLocalImagePaths(news.description);
+      const processed = await processDescription(req.body.description);
+      tempFiles.push(...processed.createdFiles);
+      news.description = processed.description;
+
+      const currentImages = extractLocalImagePaths(processed.description);
+      const imagesToRemove = previousImages.filter(
+        (imagePath) => !currentImages.includes(imagePath)
+      );
+
+      for (const imagePath of imagesToRemove) {
+        await deleteLocalFile(imagePath);
+      }
+    }
+
+    if (req.body.category) {
+      news.category = req.body.category;
+    }
+
     news.isFeatured = req.body.isFeatured === "true";
 
     await news.save();
 
+    const updatedNews = formatNewsResponse(news, req);
+
     res.status(200).json({
       status: "success",
-      news,
+      news: updatedNews,
     });
   } catch (error) {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
+    await cleanupFiles(tempFiles);
+
     res.status(500).json({
       status: "fail",
       error: error.message,
@@ -269,11 +373,9 @@ exports.deleteNews = async (req, res) => {
       });
     }
 
-    // Cloudinary'den resmi sil
-    if (news.imageUrl) {
-      const publicId = news.imageUrl.split("/").pop().split(".")[0]; // URL’den dosya adını al
-      await cloudinary.uploader.destroy(`celikhan/news/${publicId}`); // Silme işlemi
-    }
+    await deleteLocalFile(news.imageUrl);
+    const embeddedImages = extractLocalImagePaths(news.description);
+    await Promise.all(embeddedImages.map((imagePath) => deleteLocalFile(imagePath)));
 
 
     // Veritabanından haberi sil
