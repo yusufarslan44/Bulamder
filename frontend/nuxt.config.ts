@@ -9,8 +9,8 @@ export default defineNuxtConfig({
   ],
 
   runtimeConfig: {
-    apiBase: process.env.NUXT_API_BASE || 'http://127.0.0.1:5001',
-     public: {
+      apiBase: process.env.NUXT_API_BASE || 'http://127.0.0.1:5001',
+    public: {
       NUXT_PUBLIC_API_BASE: process.env.NUXT_PUBLIC_API_BASE || '/api'
     }
   },
