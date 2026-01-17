@@ -33,9 +33,9 @@
                                 density="comfortable" class="rounded-lg" prepend-inner-icon="mdi-text-box" auto-grow rows="4" required></v-textarea>
                         </v-col>
                         <v-col cols="12">
-                            <v-file-input v-model="eventForm.image" label="Etkinlik Görselleri" accept="image/*"
+                            <v-file-input v-model="eventForm.image" label="Etkinlik Görseli" accept="image/*"
                                 variant="outlined" density="comfortable" class="rounded-lg" prepend-icon="mdi-image" 
-                                multiple chips show-size counter required></v-file-input>
+                                show-size required></v-file-input>
                         </v-col>
                         <v-col cols="12">
                             <v-btn type="submit" color="primary" size="large" :loading="eventStore.isLoading" block class="rounded-lg submit-btn">
@@ -192,9 +192,9 @@
                                     density="comfortable" class="rounded-lg" prepend-inner-icon="mdi-text-box" auto-grow rows="4" required></v-textarea>
                             </v-col>
                             <v-col cols="12">
-                                <v-file-input v-model="editEventForm.image" label="Yeni Görseller (İsteğe Bağlı)" accept="image/*"
+                                <v-file-input v-model="editEventForm.image" label="Yeni Görsel (İsteğe Bağlı)" accept="image/*"
                                     variant="outlined" density="comfortable" class="rounded-lg" prepend-icon="mdi-image"
-                                    multiple chips show-size counter></v-file-input>
+                                    show-size></v-file-input>
                             </v-col>
                         </v-row>
                         <v-card-actions class="px-0 pt-4 pb-0">
@@ -248,11 +248,11 @@ const handleEventCreate = async () => {
     formData.append('endDate', eventForm.value.endDate)
     formData.append('location', eventForm.value.location)
     
-    // Birden fazla görsel için döngü ile ekle
-    if (eventForm.value.image && eventForm.value.image.length) {
-        for (let i = 0; i < eventForm.value.image.length; i++) {
-            formData.append('images', eventForm.value.image[i]);
-        }
+    const createImage = Array.isArray(eventForm.value.image)
+        ? eventForm.value.image[0]
+        : eventForm.value.image
+    if (createImage) {
+        formData.append('image', createImage)
     }
 
     const result = await eventStore.createEvent(formData)
@@ -302,11 +302,11 @@ const handleEventUpdate = async () => {
     formData.append('endDate', editEventForm.value.endDate)
     formData.append('location', editEventForm.value.location)
 
-    // Birden fazla görsel için döngü ile ekle
-    if (editEventForm.value.image && editEventForm.value.image.length) {
-        for (let i = 0; i < editEventForm.value.image.length; i++) {
-            formData.append('images', editEventForm.value.image[i]);
-        }
+    const editImage = Array.isArray(editEventForm.value.image)
+        ? editEventForm.value.image[0]
+        : editEventForm.value.image
+    if (editImage) {
+        formData.append('image', editImage)
     }
 
     const result = await eventStore.updateEvent(selectedEvent.value._id, formData)

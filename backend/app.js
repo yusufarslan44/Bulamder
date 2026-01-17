@@ -12,10 +12,12 @@ const statisticRoutes = require("./routes/statisticRoutes");
 const newsRoute = require("./routes/newsRoute");
 const authRoute = require("./routes/authRoute");
 const pageContentRoutes = require("./routes/pageContentRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 const app = express();
 
 // Middleware
+app.set("trust proxy", true);
 app.use(require('cors')());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,6 +34,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/news", newsRoute);
 app.use("/api/statistics", statisticRoutes);
 app.use("/api/page-contents", pageContentRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Çelikhan Köyü API" });
@@ -45,7 +48,7 @@ app.use((err, req, res, next) => {
 
 // Config
 const PORT = Number(process.env.PORT) || 5005;
-const HOST = "127.0.0.1";
+const HOST = process.env.HOST || "0.0.0.0";
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/celikhan";
 
 // DB -> Server
@@ -53,7 +56,7 @@ mongoose
   .connect(MONGODB_URI)
   .then(() => {
     console.log("MongoDB bağlantısı başarılı");
-    app.listen(PORT, '127.0.0.1', () => console.log('API 127.0.0.1:' + PORT));
+    app.listen(PORT, HOST, () => console.log(`API ${HOST}:${PORT}`));
   })
   .catch((err) => {
     console.error("MongoDB bağlantı hatası:", err);

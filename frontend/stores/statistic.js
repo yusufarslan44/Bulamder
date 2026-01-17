@@ -16,8 +16,8 @@ export const useStatisticStore = defineStore('statistic', {
       this.loading = true
       this.error = null
       try {
-        // const response = await $api('/statistics')
-        // this.statistics = response
+        const response = await $api('/statistics')
+        this.statistics = response
       } catch (error) {
         console.error('İstatistikler yüklenirken hata:', error)
         this.error = 'İstatistikler yüklenirken bir hata oluştu'

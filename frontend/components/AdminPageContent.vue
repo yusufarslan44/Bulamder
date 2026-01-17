@@ -174,8 +174,37 @@
                                                                         label="Pozisyon"></v-text-field>
                                                                 </v-col>
                                                                 <v-col cols="12" md="6">
-                                                                    <v-text-field v-model="member.image"
-                                                                        label="Fotoğraf URL"></v-text-field>
+                                                                    <v-file-input
+                                                                        v-model="member.imageFile"
+                                                                        label="Fotoğraf Yükle"
+                                                                        accept="image/*"
+                                                                        variant="outlined"
+                                                                        density="comfortable"
+                                                                        prepend-icon="mdi-image"
+                                                                        @update:model-value="() => handleMemberImageUpload(member)"
+                                                                        class="rounded-lg"
+                                                                        show-size
+                                                                        hint="Maksimum 5MB"
+                                                                        :loading="memberImageUploading"
+                                                                    ></v-file-input>
+                                                                    <v-img
+                                                                        v-if="member.image"
+                                                                        :src="member.image"
+                                                                        max-height="150"
+                                                                        contain
+                                                                        class="bg-grey-lighten-4 rounded-lg mt-2"
+                                                                    >
+                                                                        <template v-slot:placeholder>
+                                                                            <v-row class="fill-height ma-0" align="center" justify="center">
+                                                                                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                                                                            </v-row>
+                                                                        </template>
+                                                                    </v-img>
+                                                                    <div v-if="member.image" class="d-flex justify-end mt-1">
+                                                                        <v-btn color="error" size="small" variant="text" @click="removeMemberImage(member)" icon density="comfortable">
+                                                                            <v-icon>mdi-delete</v-icon>
+                                                                        </v-btn>
+                                                                    </div>
                                                                 </v-col>
                                                                 <v-col cols="12" md="6">
                                                                     <v-textarea v-model="member.description"
@@ -419,8 +448,11 @@
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue'
 import { usePageContentStore } from '~/stores/pageContent'
+import { useAuthStore } from '~/stores/auth'
 
 const pageContentStore = usePageContentStore()
+const authStore = useAuthStore()
+const { $api } = useNuxtApp()
 
 // Durum değişkenleri
 const activeTab = ref('pages')
@@ -432,6 +464,7 @@ const showSnackbar = ref(false)
 const snackbarText = ref('')
 const snackbarColor = ref('success')
 const imageUploading = ref(false) // Resim yükleme durumu için
+const memberImageUploading = ref(false)
 
 // Bölüm düzenleme için değişkenler
 const activeSectionIndex = ref(null)  // Seçili bölümün indeksi
@@ -743,12 +776,25 @@ const cancelEdit = () => {
     activeTab.value = 'pages'
 }
 
+const sanitizeSections = (sections = []) => {
+    return sections.map((section) => {
+        const { imageFile, ...rest } = section
+        if (Array.isArray(rest.members)) {
+            rest.members = rest.members.map((member) => {
+                const { imageFile: memberImageFile, ...memberRest } = member
+                return memberRest
+            })
+        }
+        return rest
+    })
+}
+
 // Sayfa Güncelleme
 const updatePage = async () => {
     // Formdan gelen verileri hazırla
     const updateData = {
         title: editForm.title,
-        sections: editForm.sections,
+        sections: sanitizeSections(editForm.sections),
         status: editForm.status
     }
 
@@ -830,33 +876,67 @@ const showNotification = (text, color) => {
     showSnackbar.value = true
 }
 
+const getAuthToken = () => {
+    if (!authStore.token) {
+        authStore.getTokenFromCookie()
+    }
+    return authStore.token
+}
+
+const validateImageFile = (file) => {
+    if (!file) return { ok: false, message: 'Lütfen bir dosya seçin' }
+    if (file.size > 5 * 1024 * 1024) {
+        return { ok: false, message: 'Dosya boyutu 5MB\'ı geçemez!' }
+    }
+    return { ok: true }
+}
+
+const uploadImage = async (file) => {
+    const token = getAuthToken()
+    if (!token) {
+        showNotification('Yetkilendirme hatası: Oturum açmanız gerekiyor', 'error')
+        return null
+    }
+
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const response = await $api('/upload', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        body: formData
+    })
+
+    if (response?.success && response.imageUrl) {
+        return response.imageUrl
+    }
+
+    return null
+}
+
 // Resim yükleme
 const handleImageUpload = async () => {
     if (!activeSection.value || !activeSection.value.imageFile) return
-    
-    const file = activeSection.value.imageFile
-    
-    // Dosya boyutu kontrolü (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        showNotification('Dosya boyutu 5MB\'ı geçemez!', 'error')
+
+    const file = Array.isArray(activeSection.value.imageFile)
+        ? activeSection.value.imageFile[0]
+        : activeSection.value.imageFile
+
+    const validation = validateImageFile(file)
+    if (!validation.ok) {
+        showNotification(validation.message, 'error')
         activeSection.value.imageFile = null
         return
     }
-    
+
     imageUploading.value = true
-    
+
     try {
-        const formData = new FormData()
-        formData.append('image', file)
-        
-        // API'ye yükleme isteği
-        const response = await $fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-        })
-        
-        if (response.success && response.imageUrl) {
-            activeSection.value.imageUrl = response.imageUrl
+        const imageUrl = await uploadImage(file)
+        if (imageUrl) {
+            activeSection.value.imageUrl = imageUrl
             showNotification('Görsel başarıyla yüklendi', 'success')
         } else {
             showNotification('Görsel yüklenirken bir hata oluştu', 'error')
@@ -866,8 +946,40 @@ const handleImageUpload = async () => {
         showNotification('Görsel yüklenirken bir hata oluştu', 'error')
     } finally {
         imageUploading.value = false
-        // Yüklenen dosyayı temizleme
         activeSection.value.imageFile = null
+    }
+}
+
+const handleMemberImageUpload = async (member) => {
+    if (!member?.imageFile) return
+
+    const file = Array.isArray(member.imageFile)
+        ? member.imageFile[0]
+        : member.imageFile
+
+    const validation = validateImageFile(file)
+    if (!validation.ok) {
+        showNotification(validation.message, 'error')
+        member.imageFile = null
+        return
+    }
+
+    memberImageUploading.value = true
+
+    try {
+        const imageUrl = await uploadImage(file)
+        if (imageUrl) {
+            member.image = imageUrl
+            showNotification('Ekip üyesi görseli yüklendi', 'success')
+        } else {
+            showNotification('Ekip üyesi görseli yüklenemedi', 'error')
+        }
+    } catch (error) {
+        console.error('Ekip üyesi görsel yükleme hatası:', error)
+        showNotification('Ekip üyesi görseli yüklenemedi', 'error')
+    } finally {
+        memberImageUploading.value = false
+        member.imageFile = null
     }
 }
 
@@ -875,6 +987,13 @@ const handleImageUpload = async () => {
 const removeImage = () => {
     if (confirm('Bu görseli kaldırmak istediğinizden emin misiniz?')) {
         activeSection.value.imageUrl = ''
+    }
+}
+
+const removeMemberImage = (member) => {
+    if (!member) return
+    if (confirm('Bu görseli kaldırmak istediğinizden emin misiniz?')) {
+        member.image = ''
     }
 }
 </script>

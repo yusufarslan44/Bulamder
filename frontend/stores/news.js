@@ -147,7 +147,7 @@ export const useNewsStore = defineStore("news", {
             body: formData,
           }
         );
-        if (response.success) {
+        if (response.status === "success") {
           // Güncellenen etkinliği listede güncelle
           const index = this.news.findIndex((news) => news._id === newsId);
           if (index !== -1) {
@@ -155,7 +155,7 @@ export const useNewsStore = defineStore("news", {
           }
           return { success: true, message: "Etkinlik başarıyla güncellendi" };
         } else {
-          throw new Error(response.message);
+          throw new Error(response.message || "Güncelleme başarısız");
         }
       } catch (error) {
         console.error("Etkinlik güncellenirken hata:", error);
@@ -193,12 +193,12 @@ export const useNewsStore = defineStore("news", {
             }
           }
         );
-        if (response.success) {
+        if (response.status === "success") {
           // Silinen etkinliği listeden kaldır
           this.news = this.news.filter((news) => news._id !== newsId);
           return { success: true, message: "Etkinlik başarıyla silindi" };
         } else {
-          throw new Error(response.message);
+          throw new Error(response.message || "Silme başarısız");
         }
       } catch (error) {
         console.error("Etkinlik silinirken hata:", error);

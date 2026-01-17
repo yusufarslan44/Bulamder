@@ -20,7 +20,41 @@ const pageContentSchema = new mongoose.Schema(
                 title: String,
                 subtitle: String,
                 content: String,
-                imageUrl: String
+                imageUrl: String,
+                members: [
+                    {
+                        name: String,
+                        position: String,
+                        description: String,
+                        image: String,
+                        social: [
+                            {
+                                icon: String,
+                                link: String
+                            }
+                        ]
+                    }
+                ],
+                features: [
+                    {
+                        icon: String,
+                        title: String,
+                        description: String
+                    }
+                ],
+                stats: [
+                    {
+                        value: String,
+                        label: String
+                    }
+                ],
+                values: [
+                    {
+                        icon: String,
+                        title: String,
+                        description: String
+                    }
+                ]
             }
         ],
         status: {

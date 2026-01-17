@@ -1,4 +1,17 @@
-const buildBaseUrl = (req) => `${req.protocol}://${req.get("host")}`;
+const buildBaseUrl = (req) => {
+  const envBase =
+    process.env.PUBLIC_BASE_URL || process.env.APP_BASE_URL || "";
+  if (envBase) {
+    return envBase.replace(/\/$/, "");
+  }
+
+  const forwardedHost = req.get("x-forwarded-host");
+  const forwardedProto = req.get("x-forwarded-proto");
+  const protocol = forwardedProto || req.protocol;
+  const host = forwardedHost || req.get("host");
+
+  return `${protocol}://${host}`;
+};
 
 const isAbsoluteUrl = (value = "") => /^https?:\/\//i.test(value);
 
