@@ -112,18 +112,6 @@
                                     <span class="ml-2 d-none d-sm-inline">{{ social.name }}</span>
                                 </v-btn>
                             </div>
-                            
-                            <!-- Harita Görüntüsü -->
-                            <div class="map-container mt-8 rounded-xl overflow-hidden">
-                                <img src="https://maps.googleapis.com/maps/api/staticmap?center=Çelikhan,Adıyaman,Turkey&zoom=13&size=600x300&maptype=roadmap&markers=color:red%7CÇelikhan,Adıyaman,Turkey&key=YOUR_API_KEY" 
-                                    alt="Harita" class="w-100 rounded-xl map-image">
-                                <div class="map-overlay d-flex align-center justify-center">
-                                    <v-btn color="primary" prepend-icon="mdi-map" class="rounded-pill" target="_blank"
-                                        href="https://maps.google.com/?q=Çelikhan,Adıyaman,Turkey">
-                                        Google Maps'te Görüntüle
-                                    </v-btn>
-                                </div>
-                            </div>
                         </v-card>
                     </v-col>
                 </v-row>
@@ -303,31 +291,6 @@ const handleSubmit = () => {
     box-shadow: 0 5px 15px rgba(9, 194, 86, 0.3);
 }
 
-.map-container {
-    position: relative;
-    overflow: hidden;
-}
-
-.map-image {
-    height: 200px;
-    object-fit: cover;
-}
-
-.map-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.map-container:hover .map-overlay {
-    opacity: 1;
-}
-
 .faq-panel {
     margin-bottom: 16px;
     transition: all 0.3s ease;
@@ -419,13 +382,5 @@ const handleSubmit = () => {
         transform: none;
     }
 
-    .map-image {
-        height: 160px;
-    }
-
-    .map-overlay {
-        opacity: 1;
-        background-color: rgba(0, 0, 0, 0.15);
-    }
 }
 </style>

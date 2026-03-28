@@ -14,29 +14,29 @@
 
         <!-- Yaklaşan Etkinlik -->
         <v-row class="mb-16" justify="center" v-if="upcomingEvent">
-            <v-col cols="12" md="10">
+            <v-col cols="12" md="11" class="featured-card-col">
                 <v-card class="upcoming-event-card rounded-xl overflow-hidden" elevation="3">
-                    <v-row>
-                        <v-col cols="12" md="6" class="pa-0">
+                    <v-row align="stretch">
+                        <v-col cols="12" md="6" class="pa-0 d-flex featured-image-col">
                             <div class="image-container">
                                 <v-img :src="upcomingEvent.imageUrl"
-                                    height="380" cover class="featured-image"></v-img>
+                                    height="100%" cover class="featured-image"></v-img>
                                 <div class="image-overlay-gradient"></div>
                                 <div class="event-badge">YAKLAŞAN ETKİNLİK</div>
                             </div>
                         </v-col>
-                        <v-col cols="12" md="6" class="d-flex flex-column justify-space-between pa-8 fade-in upcoming-content-col">
-                            <v-card-title class="text-h3 font-weight-bold mb-3">{{ upcomingEvent.title }}</v-card-title>
+                        <v-col cols="12" md="6" class="d-flex flex-column justify-space-between pa-6 fade-in upcoming-content-col">
+                            <v-card-title class="text-h4 font-weight-bold mb-2">{{ upcomingEvent.title }}</v-card-title>
                             <div class="d-flex align-center mb-4 event-date">
                                 <v-icon color="primary" class="mr-2">mdi-calendar</v-icon>
-                                <span class="text-subtitle-1 event-meta-text">{{ formatDate(upcomingEvent.date) }} - {{ formatDate(upcomingEvent.endDate) }}</span>
+                                <span class="text-subtitle-1 event-meta-text">{{ eventDateRangeText(upcomingEvent) }}</span>
                             </div>
                             <div class="d-flex align-center mb-6 event-location">
                                 <v-icon color="primary" class="mr-2">mdi-map-marker</v-icon>
-                                <span class="text-subtitle-1 event-meta-text">{{ upcomingEvent.location }}</span>
+                                <span class="text-subtitle-1 event-meta-text">{{ eventLocationText(upcomingEvent) }}</span>
                             </div>
                             <v-card-text class="px-0 pt-0">
-                                <p class="text-body-1 mb-6">{{ upcomingEvent.description }}</p>
+                                <p class="text-body-1 mb-6">{{ eventDescriptionText(upcomingEvent) }}</p>
                                 <div class="d-flex mb-6">
                                     <v-chip color="primary" class="mr-2 rounded-pill">
                                         <v-icon size="small" class="mr-1">mdi-calendar-check</v-icon>
@@ -121,15 +121,15 @@
                                 <v-card-title class="text-h5 font-weight-bold mb-3">{{ event.title }}</v-card-title>
                                 <div class="d-flex align-center mb-4">
                                     <v-icon size="small" color="primary" class="mr-2">mdi-calendar</v-icon>
-                                    <span class="text-body-2">{{ formatDate(event.date) }}</span>
+                                    <span class="text-body-2">{{ eventDateRangeText(event) }}</span>
                                 </div>
                                 <div class="d-flex align-center mb-4">
                                     <v-icon size="small" color="primary" class="mr-2">mdi-map-marker</v-icon>
-                                    <span class="text-body-2">{{ event.location }}</span>
+                                    <span class="text-body-2">{{ eventLocationText(event) }}</span>
                                 </div>
                                 <v-card-text class="px-0 pb-0 flex-grow-1">
                                     <p class="text-body-2 event-description">
-                                        {{ event.description || 'Etkinlik detayları yakında paylaşılacak.' }}
+                                        {{ eventDescriptionText(event) }}
                                     </p>
                                 </v-card-text>
                                 <v-card-actions class="pa-0 mt-4 mt-auto">
@@ -223,6 +223,7 @@ const countdown = computed(() => {
 const formatDate = (dateString) => {
     if (!dateString) return ''
     const date = new Date(dateString)
+    if (Number.isNaN(date.getTime())) return ''
     return date.toLocaleDateString('tr-TR', { 
         day: 'numeric', 
         month: 'long', 
@@ -230,6 +231,33 @@ const formatDate = (dateString) => {
         hour: '2-digit',
         minute: '2-digit'
     })
+}
+
+const eventDateRangeText = (event) => {
+    if (!event) return 'Tarih bilgisi eklenecek'
+
+    const startDate = formatDate(event.date)
+    const endDate = formatDate(event.endDate)
+
+    if (!startDate && !endDate) return 'Tarih bilgisi eklenecek'
+    if (startDate && endDate) return `${startDate} - ${endDate}`
+    return startDate || endDate
+}
+
+const eventLocationText = (event) => {
+    const rawLocation = event?.location
+    if (typeof rawLocation === 'string' && rawLocation.trim()) {
+        return rawLocation.trim()
+    }
+    return 'Konum bilgisi eklenecek'
+}
+
+const eventDescriptionText = (event) => {
+    const rawDescription = event?.description
+    if (typeof rawDescription === 'string' && rawDescription.trim()) {
+        return rawDescription.trim()
+    }
+    return 'Etkinlik detayları yakında paylaşılacak.'
 }
 
 // Etkinlik durumu sınıfı
@@ -289,10 +317,15 @@ onMounted(async () => {
 .image-container {
     position: relative;
     overflow: hidden;
+    display: flex;
+    width: 100%;
     height: 100%;
+    min-height: 310px;
 }
 
 .featured-image {
+    width: 100%;
+    height: 100%;
     transition: transform 0.8s ease;
 }
 
@@ -539,6 +572,11 @@ onMounted(async () => {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
+    .image-container {
+        min-height: 260px;
+    }
+
 }
 
 @media (max-width: 600px) {
@@ -550,13 +588,9 @@ onMounted(async () => {
         flex: 1 1 calc(33% - 10px);
     }
 
-    .event-dialog-actions .v-btn {
-        flex: 1 1 100%;
-        margin-right: 0 !important;
+    .image-container {
+        min-height: 220px;
     }
 
-    :deep(.event-timeline .v-timeline-item__opposite) {
-        display: none;
-    }
 }
 </style>

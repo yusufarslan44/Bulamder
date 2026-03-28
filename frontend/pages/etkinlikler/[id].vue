@@ -98,19 +98,19 @@
                             </v-chip-group>
                         </template>
 
-                        <v-sheet class="my-6 pa-5 rounded-xl text-center share-sheet">
-                            <p class="text-body-2 mb-3">Bu etkinliği arkadaşlarınızla paylaşın</p>
+                        <v-sheet class="my-6 pa-5 rounded-xl text-center share-sheet" :class="{ 'share-sheet-dark': isBlackWhite }">
+                            <p class="text-body-2 mb-3 share-text" :class="{ 'share-text-dark': isBlackWhite }">Bu etkinliği arkadaşlarınızla paylaşın</p>
                             <div class="d-flex justify-center">
-                                <v-btn icon color="blue-darken-1" class="mx-1 share-btn" variant="text" size="large" @click="shareEvent('facebook')">
+                                <v-btn icon class="mx-1 share-btn share-btn-facebook" :class="{ 'share-btn-dark': isBlackWhite }" variant="text" size="large" @click="shareEvent('facebook')">
                                     <v-icon>mdi-facebook</v-icon>
                                 </v-btn>
-                                <v-btn icon color="blue-lighten-1" class="mx-1 share-btn" variant="text" size="large" @click="shareEvent('twitter')">
+                                <v-btn icon class="mx-1 share-btn share-btn-twitter" :class="{ 'share-btn-dark': isBlackWhite }" variant="text" size="large" @click="shareEvent('twitter')">
                                     <v-icon>mdi-twitter</v-icon>
                                 </v-btn>
-                                <v-btn icon color="green-darken-1" class="mx-1 share-btn" variant="text" size="large" @click="shareEvent('whatsapp')">
+                                <v-btn icon class="mx-1 share-btn share-btn-whatsapp" :class="{ 'share-btn-dark': isBlackWhite }" variant="text" size="large" @click="shareEvent('whatsapp')">
                                     <v-icon>mdi-whatsapp</v-icon>
                                 </v-btn>
-                                <v-btn icon color="grey-darken-1" class="mx-1 share-btn" variant="text" size="large" @click="shareEvent('copy')">
+                                <v-btn icon class="mx-1 share-btn share-btn-copy" :class="{ 'share-btn-dark': isBlackWhite }" variant="text" size="large" @click="shareEvent('copy')">
                                     <v-icon>mdi-link-variant</v-icon>
                                 </v-btn>
                             </div>
@@ -152,6 +152,7 @@
 <script setup>
 const route = useRoute()
 const eventStore = useEventStore()
+const { isBlackWhite } = useBlackWhiteTheme()
 const events = computed(() => eventStore.getEvents)
 
 const selectedEvent = computed(() => {
@@ -337,29 +338,81 @@ watch(() => route.params.id, async () => {
     border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
+.share-sheet-dark {
+    background: linear-gradient(135deg, rgba(20, 31, 48, 0.88), rgba(15, 23, 42, 0.9)) !important;
+    border: 1px solid rgba(110, 231, 183, 0.2) !important;
+    box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
+}
+
+.share-text-dark {
+    color: var(--text-primary) !important;
+}
+
 .share-btn {
     transition: transform 0.2s ease, background-color 0.2s ease;
+    border-radius: 12px;
+}
+
+.share-btn-facebook {
+    color: #1565c0 !important;
+}
+
+.share-btn-twitter {
+    color: #1d9bf0 !important;
+}
+
+.share-btn-whatsapp {
+    color: #2e7d32 !important;
+}
+
+.share-btn-copy {
+    color: #4b5563 !important;
 }
 
 .share-btn:hover {
     transform: translateY(-2px);
+    background-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+.share-btn-dark {
+    background-color: rgba(148, 163, 184, 0.1) !important;
+    border: 1px solid rgba(148, 163, 184, 0.18);
 }
 
 :global(body.bw-theme) .share-sheet {
-    background: rgba(15, 23, 42, 0.42) !important;
-    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: linear-gradient(135deg, rgba(20, 31, 48, 0.88), rgba(15, 23, 42, 0.9)) !important;
+    border: 1px solid rgba(110, 231, 183, 0.2);
+    box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
 }
 
-:global(body.bw-theme) .share-sheet :deep(.text-body-2) {
+:global(body.bw-theme) .share-text {
     color: var(--text-primary) !important;
 }
 
 :global(body.bw-theme) .share-btn {
-    color: #cbd5e1 !important;
+    background-color: rgba(148, 163, 184, 0.1) !important;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+:global(body.bw-theme) .share-btn-facebook {
+    color: #93c5fd !important;
+}
+
+:global(body.bw-theme) .share-btn-twitter {
+    color: #7dd3fc !important;
+}
+
+:global(body.bw-theme) .share-btn-whatsapp {
+    color: #86efac !important;
+}
+
+:global(body.bw-theme) .share-btn-copy {
+    color: #e2e8f0 !important;
 }
 
 :global(body.bw-theme) .share-btn:hover {
-    background-color: rgba(16, 185, 129, 0.14) !important;
+    background-color: rgba(16, 185, 129, 0.16) !important;
+    border-color: rgba(110, 231, 183, 0.3);
 }
 
 .event-timeline {

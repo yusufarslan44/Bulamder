@@ -125,8 +125,8 @@
         <v-row align="center" dense>
           <v-col cols="12" md="6" class="text-center text-md-start order-2 order-md-1 py-1">
             <div class="footer-copyright">
-              &copy; {{ new Date().getFullYear() }} 
-              <strong>Bulanık Kültür ve Dayanışma Derneği</strong>
+              &copy; 2026
+              <strong>Bulanık Kültür ve Dayanışma Derneği Bulamder</strong>
             </div>
           </v-col>
 	          <v-col cols="12" md="6" class="text-center text-md-end order-1 order-md-2 py-1 bottom-links-col">

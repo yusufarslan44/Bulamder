@@ -623,6 +623,42 @@ onMounted(async () => {
     overflow: visible !important;
 }
 
+.news-carousel.v-carousel,
+.gallery-carousel.v-carousel {
+    overflow: visible !important;
+    padding-bottom: 34px;
+}
+
+.news-carousel :deep(.v-carousel__controls),
+.gallery-carousel :deep(.v-carousel__controls) {
+    bottom: -18px;
+    background: transparent !important;
+    gap: 4px;
+}
+
+.news-carousel :deep(.v-carousel__controls .v-btn),
+.gallery-carousel :deep(.v-carousel__controls .v-btn) {
+    color: rgba(11, 114, 49, 0.58) !important;
+    opacity: 1 !important;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.news-carousel :deep(.v-carousel__controls .v-btn--active),
+.gallery-carousel :deep(.v-carousel__controls .v-btn--active) {
+    color: #0b7231 !important;
+    transform: scale(1.15);
+}
+
+:global(body.bw-theme) .news-carousel :deep(.v-carousel__controls .v-btn),
+:global(body.bw-theme) .gallery-carousel :deep(.v-carousel__controls .v-btn) {
+    color: rgba(148, 163, 184, 0.78) !important;
+}
+
+:global(body.bw-theme) .news-carousel :deep(.v-carousel__controls .v-btn--active),
+:global(body.bw-theme) .gallery-carousel :deep(.v-carousel__controls .v-btn--active) {
+    color: #34d399 !important;
+}
+
 .news-card {
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     overflow: hidden;
@@ -911,10 +947,6 @@ onMounted(async () => {
     .news-card,
     .gallery-card {
         margin-bottom: 20px;
-    }
-
-    .v-carousel__controls {
-        margin-bottom: -20px;
     }
 
     .hero-content .d-flex {

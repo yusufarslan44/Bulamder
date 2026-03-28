@@ -286,7 +286,7 @@ body.bw-theme .v-field {
 
 /* Carousel controls */
 body.bw-theme .v-carousel__controls {
-    background: rgba(0, 0, 0, 0.4) !important;
+    background: transparent !important;
 }
 
 /* Scrollbar */
