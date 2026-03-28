@@ -182,9 +182,14 @@
                 <v-card-text class="px-6 py-4">
                     <v-form @submit.prevent="handleNewsUpdate">
                         <v-row>
-                            <v-col cols="12">
+                            <v-col cols="12" md="8">
                                 <v-text-field v-model="editNewsForm.title" label="Başlık" variant="outlined" 
                                     density="comfortable" class="rounded-lg" prepend-inner-icon="mdi-format-title" required></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                                <v-select v-model="editNewsForm.category" :items="categories" label="Kategori"
+                                    variant="outlined" density="comfortable" class="rounded-lg"
+                                    prepend-inner-icon="mdi-folder" required></v-select>
                             </v-col>
                             <v-col cols="12">
                                 <div class="mb-2 editor-label d-flex align-center">
@@ -202,6 +207,10 @@
                                 <v-file-input v-model="editNewsForm.image" label="Yeni Görsel (İsteğe Bağlı)" 
                                     accept="image/*" variant="outlined" density="comfortable" class="rounded-lg" 
                                     prepend-icon="mdi-image"></v-file-input>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-switch v-model="editNewsForm.isFeatured" color="success"
+                                    label="Haberi Öne Çıkar" inset></v-switch>
                             </v-col>
                         </v-row>
 
@@ -244,7 +253,9 @@ const newsForm = ref({
 const editNewsForm = ref({
     title: '',
     description: '',
-    image: null
+    image: null,
+    category: '',
+    isFeatured: false
 })
 const customToolbar = [
     [{ header: [1, 2, false] }],
@@ -346,7 +357,9 @@ const openNewsEdit = (news) => {
     editNewsForm.value = {
         title: news.title,
         description: news.description,
-        image: null
+        image: null,
+        category: getCategoryName(news.category),
+        isFeatured: Boolean(news.isFeatured)
     }
     editNewsDialog.value = true
 }
@@ -355,6 +368,8 @@ const handleNewsUpdate = async () => {
     const formData = new FormData()
     formData.append('title', editNewsForm.value.title)
     formData.append('description', editNewsForm.value.description)
+    formData.append('category', editNewsForm.value.category.toLowerCase())
+    formData.append('isFeatured', String(editNewsForm.value.isFeatured))
     if (editNewsForm.value.image) {
         formData.append('image', editNewsForm.value.image[0] || editNewsForm.value.image)
     }

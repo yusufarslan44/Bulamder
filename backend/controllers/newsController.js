@@ -313,8 +313,18 @@ exports.updateNews = async (req, res) => {
       news.imageUrl = `/uploads/${req.file.filename}`;
     }
 
-    if (req.body.isFeatured === "true" && !news.isFeatured) {
-      await News.updateMany({}, { isFeatured: false });
+    const hasIsFeatured =
+      req.body &&
+      Object.prototype.hasOwnProperty.call(req.body, "isFeatured");
+    if (hasIsFeatured) {
+      const nextIsFeatured =
+        req.body.isFeatured === "true" || req.body.isFeatured === true;
+
+      if (nextIsFeatured && !news.isFeatured) {
+        await News.updateMany({}, { isFeatured: false });
+      }
+
+      news.isFeatured = nextIsFeatured;
     }
 
     if (req.body.title) {
@@ -340,8 +350,6 @@ exports.updateNews = async (req, res) => {
     if (req.body.category) {
       news.category = req.body.category;
     }
-
-    news.isFeatured = req.body.isFeatured === "true";
 
     await news.save();
 
