@@ -8,5 +8,9 @@
 </template>
 
 <script setup>
-// App level setup
+const { initTheme } = useBlackWhiteTheme()
+
+onMounted(() => {
+  initTheme()
+})
 </script>

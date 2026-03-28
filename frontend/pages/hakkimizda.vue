@@ -79,11 +79,11 @@
         <v-row justify="center">
             <v-col cols="12" md="10">
                 <v-row>
-                    <v-col v-for="(member, index) in team" :key="index" cols="12" sm="6" md="3" class="fade-in-item"
+                    <v-col v-for="(member, index) in team" :key="index" cols="12" sm="6" md="3" class="fade-in-item d-flex team-col"
                         :style="{ 'animation-delay': `${index * 0.15}s` }">
-                        <v-card class="team-card rounded-xl overflow-hidden" elevation="3">
+                        <v-card class="team-card rounded-xl overflow-hidden h-100" elevation="3">
                             <div class="image-container">
-                                <v-img :src="member.image" height="300" cover class="team-image">
+                                <v-img :src="member.image" :height="$vuetify.display.xs ? '240' : '300'" cover class="team-image">
                                     <template v-slot:placeholder>
                                         <v-row class="fill-height ma-0" align="center" justify="center">
                                             <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -92,11 +92,11 @@
                                     <div class="image-overlay-gradient"></div>
                                 </v-img>
                             </div>
-                            <v-card-item class="text-center pa-4">
+                            <v-card-item class="text-center pa-4 team-content">
                                 <v-card-title class="text-h5 font-weight-bold mb-1">{{ member.name }}</v-card-title>
                                 <v-chip color="primary" size="small" class="mb-3 position-chip">{{ member.position
                                     }}</v-chip>
-                                <v-card-text class="text-body-2">{{ member.description }}</v-card-text>
+                                <v-card-text class="text-body-2 member-description">{{ member.description }}</v-card-text>
                             </v-card-item>
                             <v-card-actions class="justify-center pa-4 social-actions">
                                 <v-btn v-for="(social, sIndex) in member.social" :key="sIndex" :icon="social.icon"
@@ -345,6 +345,9 @@ const values = computed(() => valuesSection.value.values)
 .team-card {
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .team-card:hover {
@@ -379,6 +382,20 @@ const values = computed(() => valuesSection.value.values)
     font-size: 0.75rem;
     background: linear-gradient(90deg, #09c256, #0b7231) !important;
     color: white !important;
+}
+
+.team-content {
+    flex: 1 1 auto;
+}
+
+.member-description {
+    padding: 0 !important;
+    min-height: 72px;
+    line-height: 1.5;
+}
+
+.social-actions {
+    margin-top: auto;
 }
 
 .social-btn {
@@ -431,6 +448,15 @@ const values = computed(() => valuesSection.value.values)
 }
 
 @media (max-width: 600px) {
+    .about-card {
+        padding: 18px !important;
+    }
+
+    .about-card :deep(.v-card-title) {
+        font-size: 1.35rem !important;
+        line-height: 1.35;
+    }
+
     .stat-item:nth-child(2n)::after {
         display: none;
     }

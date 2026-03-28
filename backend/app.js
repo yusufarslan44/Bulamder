@@ -18,7 +18,25 @@ const app = express();
 
 // Middleware
 app.set("trust proxy", true);
-app.use(require('cors')());
+const allowedOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.length === 0) {
+        return callback(null, true);
+      }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS origin not allowed"));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -47,7 +65,7 @@ app.use((err, req, res, next) => {
 });
 
 // Config
-const PORT = Number(process.env.PORT) || 5005;
+const PORT = Number(process.env.PORT) || 5001;
 const HOST = process.env.HOST || "0.0.0.0";
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/celikhan";
 

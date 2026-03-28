@@ -68,7 +68,6 @@
                   variant="outlined"
                   density="comfortable"
                   class="category-filter"
-                  style="max-width: 220px;"
                   hide-details
                 ></v-select>
             </v-card-title>
@@ -443,6 +442,10 @@ onMounted(() => {
     opacity: 0.8;
 }
 
+.category-filter {
+    max-width: 220px;
+}
+
 .table-container {
     border-radius: 8px;
     overflow: hidden;
@@ -518,6 +521,14 @@ onMounted(() => {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .category-filter {
+        max-width: 100%;
+        width: 100%;
+        margin-top: 12px;
     }
 }
 </style>

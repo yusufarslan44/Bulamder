@@ -18,6 +18,9 @@ const normalizeSections = (sections = []) =>
     sections.map((section) => ({
         ...section,
         imageUrl: normalizeUploadPath(section?.imageUrl),
+        imageUrls: Array.isArray(section?.imageUrls)
+            ? section.imageUrls.map((url) => normalizeUploadPath(url)).filter(Boolean)
+            : section?.imageUrls,
         members: Array.isArray(section?.members)
             ? normalizeMembers(section.members)
             : section?.members,
@@ -33,6 +36,9 @@ const formatSections = (sections = [], req) =>
     sections.map((section) => ({
         ...section,
         imageUrl: toAbsoluteUrl(req, section?.imageUrl),
+        imageUrls: Array.isArray(section?.imageUrls)
+            ? section.imageUrls.map((url) => toAbsoluteUrl(req, url)).filter(Boolean)
+            : section?.imageUrls,
         members: Array.isArray(section?.members)
             ? formatMembers(section.members, req)
             : section?.members,

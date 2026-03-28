@@ -9,12 +9,9 @@ export default defineNuxtConfig({
   ],
 
   runtimeConfig: {
-      apiBase: process.env.NUXT_API_BASE || 'http://127.0.0.1:5001',
+    apiBase: process.env.NUXT_API_BASE || '',
     public: {
-      NUXT_PUBLIC_API_BASE:
-        process.env.NUXT_PUBLIC_API_BASE ||
-        process.env.NUXT_API_BASE ||
-        'http://127.0.0.1:5001'
+      NUXT_PUBLIC_API_BASE: process.env.NUXT_PUBLIC_API_BASE || ''
     }
   },
 
@@ -44,6 +41,13 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { hid: 'description', name: 'description', content: 'Çelikhan Bulam Derneği resmi web sitesi' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-bw-32x32.png', media: '(prefers-color-scheme: dark)' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-bw-16x16.png', media: '(prefers-color-scheme: dark)' }
       ]
     }
   },

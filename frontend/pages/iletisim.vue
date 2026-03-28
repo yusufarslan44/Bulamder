@@ -1,5 +1,5 @@
 <template>
-    <v-container class="pt-16 pb-16">
+    <v-container class="pt-16 pb-16 page-container">
         <!-- Başlık -->
         <v-row justify="center" class="mb-12">
             <v-col cols="12" md="8" class="text-center">
@@ -13,7 +13,7 @@
         </v-row>
 
         <v-row justify="center">
-            <v-col cols="12" md="10" lg="10">
+            <v-col cols="12" md="10" lg="10" class="contact-shell rounded-xl">
                 <v-row>
                     <!-- İletişim Formu -->
                     <v-col cols="12" md="6" class="contact-form-col fade-in-item">
@@ -116,7 +116,7 @@
                             <!-- Harita Görüntüsü -->
                             <div class="map-container mt-8 rounded-xl overflow-hidden">
                                 <img src="https://maps.googleapis.com/maps/api/staticmap?center=Çelikhan,Adıyaman,Turkey&zoom=13&size=600x300&maptype=roadmap&markers=color:red%7CÇelikhan,Adıyaman,Turkey&key=YOUR_API_KEY" 
-                                    alt="Harita" class="w-100 rounded-xl" style="height: 200px; object-fit: cover;">
+                                    alt="Harita" class="w-100 rounded-xl map-image">
                                 <div class="map-overlay d-flex align-center justify-center">
                                     <v-btn color="primary" prepend-icon="mdi-map" class="rounded-pill" target="_blank"
                                         href="https://maps.google.com/?q=Çelikhan,Adıyaman,Turkey">
@@ -263,6 +263,11 @@ const handleSubmit = () => {
     margin-bottom: 12px;
 }
 
+.contact-list-item :deep(.v-list-item-subtitle) {
+    white-space: normal;
+    word-break: break-word;
+}
+
 .contact-list-item:hover {
     background-color: rgba(9, 194, 86, 0.05);
     transform: translateX(5px);
@@ -276,6 +281,10 @@ const handleSubmit = () => {
     margin-right: 8px;
     transition: all 0.3s ease;
     height: 36px;
+}
+
+.social-media-container {
+    gap: 8px;
 }
 
 .social-btn-icon:hover {
@@ -297,6 +306,11 @@ const handleSubmit = () => {
 .map-container {
     position: relative;
     overflow: hidden;
+}
+
+.map-image {
+    height: 200px;
+    object-fit: cover;
 }
 
 .map-overlay {
@@ -341,9 +355,39 @@ const handleSubmit = () => {
     }
 }
 
-.v-container {
-    background-color: #f9fafb;
+.page-container {
+    background-color: var(--background-color);
+    color: var(--text-primary);
     min-height: 100vh;
+}
+
+.contact-shell {
+    padding: 12px;
+}
+
+:global(body.bw-theme) .contact-shell {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(6px);
+}
+
+:global(body.bw-theme) .page-container {
+    background: transparent;
+}
+
+:global(body.bw-theme) .page-container :deep(.v-card-title),
+:global(body.bw-theme) .page-container :deep(.v-list-item-title),
+:global(body.bw-theme) .page-container :deep(.v-list-item-subtitle),
+:global(body.bw-theme) .page-container :deep(.v-expansion-panel-title),
+:global(body.bw-theme) .page-container :deep(.v-expansion-panel-text),
+:global(body.bw-theme) .page-container :deep(.v-label),
+:global(body.bw-theme) .page-container :deep(.v-field__input) {
+    color: var(--text-primary) !important;
+}
+
+:global(body.bw-theme) .page-container :deep(.v-divider) {
+    border-color: rgba(148, 163, 184, 0.24) !important;
 }
 
 .h-100 {
@@ -369,6 +413,19 @@ const handleSubmit = () => {
         padding: 0;
         width: 36px;
         min-width: 36px;
+    }
+
+    .contact-list-item:hover {
+        transform: none;
+    }
+
+    .map-image {
+        height: 160px;
+    }
+
+    .map-overlay {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.15);
     }
 }
 </style>

@@ -21,6 +21,7 @@ const pageContentSchema = new mongoose.Schema(
                 subtitle: String,
                 content: String,
                 imageUrl: String,
+                imageUrls: [String],
                 members: [
                     {
                         name: String,

@@ -35,6 +35,14 @@
     --spacing-xl: 2rem;
 }
 
+html,
+body,
+#__nuxt,
+.v-application {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 /* Genel Stil Sınıfları */
 .card-hover {
     transition: transform var(--transition-speed) var(--transition-timing);
@@ -117,4 +125,181 @@
 .custom-input:focus {
     border-color: var(--primary-color);
     outline: none;
-} 
+}
+
+/* Dark (Derin Lacivert) Tema */
+body.bw-theme {
+    --primary-color: #10b981;
+    --secondary-color: #34d399;
+    --accent-color: #6ee7b7;
+    --background-color: #0d1117;
+    --surface-color: #1c2333;
+    --surface-elevated: #242f42;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border-color: rgba(148, 163, 184, 0.1);
+    --gradient-primary: linear-gradient(135deg, #0d1117 0%, #161b27 100%);
+    --gradient-background: linear-gradient(160deg, #0d1117 0%, #111827 50%, #0f172a 100%);
+    --gradient-surface: linear-gradient(135deg, #1c2333 0%, #1e293b 100%);
+    --gradient-accent: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --hover-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    background-color: var(--background-color);
+    color: var(--text-primary);
+}
+
+body .v-application {
+    transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+body.bw-theme .v-application,
+body.bw-theme .v-main {
+    background: var(--gradient-background) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Navbar dark gradyan */
+body.bw-theme .green-gradient {
+    background: linear-gradient(90deg, #0d1420 0%, #1a2640 100%) !important;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.15) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.bw-theme .gradient-primary,
+body.bw-theme .bg-gradient {
+    background: var(--gradient-accent) !important;
+}
+
+/* Section başlık çizgisi */
+body.bw-theme .section-divider {
+    background: linear-gradient(90deg, #10b981, #059669) !important;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Footer dalgası */
+body.bw-theme .footer-wave path {
+    fill: #0d1117 !important;
+}
+
+/* Metin renkleri */
+body.bw-theme .text-green,
+body.bw-theme .text-green-darken-2 {
+    color: #10b981 !important;
+}
+
+body.bw-theme .text-overline {
+    color: #34d399 !important;
+}
+
+/* Navbar tab hover */
+body.bw-theme .navbar .v-tab:hover,
+body.bw-theme .navbar .v-list-item:hover {
+    background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+/* Kart yüzeyleri */
+body.bw-theme .v-card {
+    background: var(--gradient-surface) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+body.bw-theme .v-card:hover {
+    border-color: rgba(16, 185, 129, 0.25) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Features bar */
+body.bw-theme .features-bar {
+    background: var(--surface-color) !important;
+    border-top: 1px solid var(--border-color) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Hero section */
+body.bw-theme .hero-section {
+    background: linear-gradient(160deg, #0d1117 0%, #111827 60%, #0f172a 100%) !important;
+}
+
+/* Upcoming event section */
+body.bw-theme .upcoming-event-section {
+    background: linear-gradient(135deg, #0d1117 0%, #111827 100%) !important;
+}
+
+/* Event badge & status */
+body.bw-theme .event-badge,
+body.bw-theme .status-upcoming,
+body.bw-theme .primary-selected {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Event info blocks */
+body.bw-theme .event-date,
+body.bw-theme .event-location,
+body.bw-theme .event-countdown,
+body.bw-theme .timeline-content {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Countdown items */
+body.bw-theme .countdown-item {
+    background: linear-gradient(135deg, #1c2333, #1e293b) !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    color: #e2e8f0 !important;
+}
+
+/* Navigation drawer (mobile) */
+body.bw-theme .v-navigation-drawer {
+    background: linear-gradient(160deg, #111827 0%, #0f172a 100%) !important;
+    border-left: 1px solid rgba(16, 185, 129, 0.15) !important;
+}
+
+/* List items in dark mode */
+body.bw-theme .v-list {
+    background: transparent !important;
+}
+
+body.bw-theme .v-list-item-title {
+    color: var(--text-primary) !important;
+}
+
+/* Divider */
+body.bw-theme .v-divider {
+    border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Chip */
+body.bw-theme .v-chip {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Input fields */
+body.bw-theme .v-field {
+    background: var(--surface-color) !important;
+}
+
+/* Carousel controls */
+body.bw-theme .v-carousel__controls {
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Scrollbar */
+body.bw-theme ::-webkit-scrollbar {
+    width: 6px;
+}
+body.bw-theme ::-webkit-scrollbar-track {
+    background: #0d1117;
+}
+body.bw-theme ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 3px;
+}
+body.bw-theme ::-webkit-scrollbar-thumb:hover {
+    background: #10b981;
+}

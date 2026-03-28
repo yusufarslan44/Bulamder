@@ -3,7 +3,7 @@
         <!-- Breadcrumb Navigation -->
         <v-row class="mb-8">
             <v-col cols="12" md="10" class="mx-auto">
-                <div class="d-flex align-center">
+                <div class="d-flex align-center breadcrumb-row">
                     <v-btn variant="text" color="primary" density="compact" to="/gundem" class="mr-2 px-1">
                         <v-icon size="small" class="mr-1">mdi-home</v-icon>
                         Gündem
@@ -32,7 +32,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex mt-2 mt-sm-0">
+                    <div class="d-flex mt-2 mt-sm-0 top-action-buttons">
                         <v-btn variant="outlined" color="primary" class="mr-2 rounded-pill share-btn" density="comfortable" prepend-icon="mdi-share-variant">
                             Paylaş
                         </v-btn>
@@ -48,7 +48,12 @@
         <v-row justify="center" class="mb-12">
             <v-col cols="12" md="10">
                 <div class="main-image-container">
-                    <v-img :src="haber.imageUrl" height="550" cover class="rounded-xl main-image"></v-img>
+                    <v-img
+                        :src="haber.imageUrl"
+                        :height="$vuetify.display.xs ? '260' : $vuetify.display.sm ? '360' : '550'"
+                        cover
+                        class="rounded-xl main-image"
+                    ></v-img>
                     <div class="image-gradient-overlay rounded-xl"></div>
                 </div>
                 <p class="text-caption mt-2 text-grey text-center">{{ haber.imageCaption || 'Haber görseli' }}</p>
@@ -77,7 +82,7 @@
                 <!-- Sosyal Paylaşım -->
                 <v-sheet class="mt-6 pa-5 rounded-xl bg-primary-lighten-5 text-center">
                     <p class="text-body-2 mb-3">Bu haberi beğendiyseniz, arkadaşlarınızla paylaşın!</p>
-                    <div class="d-flex justify-center">
+                    <div class="d-flex justify-center flex-wrap social-share-actions">
                         <v-btn icon color="blue-darken-1" class="mx-1" variant="text" size="large">
                             <v-icon>mdi-facebook</v-icon>
                         </v-btn>
@@ -121,7 +126,7 @@
                                         <p class="text-body-2 mb-4 news-excerpt"
                                             v-html="benzerHaber.description.length > 100 ? benzerHaber.description.slice(0, 100) + '...' : benzerHaber.description">
                                         </p>
-                                        <div class="d-flex align-center justify-space-between">
+                                        <div class="d-flex align-center justify-space-between related-meta-row">
                                             <span class="text-caption d-flex align-center">
                                                 <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                                                 {{ benzerHaber.date }}
@@ -229,6 +234,7 @@ onMounted(async () => {
 
 .title-animation {
     animation: fadeInUp 0.8s ease-in-out;
+    word-break: break-word;
 }
 
 .fade-in {
@@ -357,6 +363,14 @@ onMounted(async () => {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
+.breadcrumb-row,
+.top-action-buttons,
+.related-meta-row,
+.social-share-actions {
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .gundem-link {
     text-decoration: none;
 }
@@ -388,6 +402,21 @@ onMounted(async () => {
     
     .haber-icerik h3 {
         margin: 2rem 0 1rem;
+    }
+
+    .top-action-buttons {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .breadcrumb-row {
+        align-items: flex-start !important;
+    }
+
+    .top-action-buttons .v-btn {
+        flex: 1 1 100%;
+        margin-right: 0 !important;
     }
 }
 </style>

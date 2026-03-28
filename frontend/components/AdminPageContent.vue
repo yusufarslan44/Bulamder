@@ -110,7 +110,7 @@
 
                                                 <!-- Görsel alanı (tüm bölümler için) -->
                                                 <v-col cols="12" md="6"
-                                                    v-if="!isSectionTypeWithSpecialEditor(activeSection.sectionName)">
+                                                    v-if="!isSectionTypeWithSpecialEditor(activeSection.sectionName) && activeSection.sectionName !== 'hero'">
                                                     <v-file-input 
                                                         v-model="activeSection.imageFile" 
                                                         label="Görsel Yükle" 
@@ -126,7 +126,7 @@
                                                     ></v-file-input>
                                                 </v-col>
                                                 <v-col cols="12" md="6"
-                                                    v-if="!isSectionTypeWithSpecialEditor(activeSection.sectionName) && activeSection.imageUrl">
+                                                    v-if="!isSectionTypeWithSpecialEditor(activeSection.sectionName) && activeSection.sectionName !== 'hero' && activeSection.imageUrl">
                                                     <v-img 
                                                         :src="activeSection.imageUrl" 
                                                         max-height="150" 
@@ -144,6 +144,60 @@
                                                             <v-icon>mdi-delete</v-icon>
                                                         </v-btn>
                                                     </div>
+                                                </v-col>
+
+                                                <!-- Hero bölümü çoklu görsel editörü -->
+                                                <v-col cols="12" v-if="activeSection.sectionName === 'hero'">
+                                                    <v-divider class="my-2"></v-divider>
+                                                    <h5 class="text-h6 mb-3">Hero Slider Görselleri</h5>
+
+                                                    <v-file-input
+                                                        v-model="activeSection.heroImageFile"
+                                                        label="Hero görseli yükle"
+                                                        accept="image/*"
+                                                        variant="outlined"
+                                                        density="comfortable"
+                                                        prepend-icon="mdi-image-multiple"
+                                                        @update:model-value="handleHeroImageUpload"
+                                                        class="rounded-lg mb-3"
+                                                        show-size
+                                                        hint="Maksimum 5MB"
+                                                        :loading="heroImageUploading"
+                                                    ></v-file-input>
+
+                                                    <v-row v-if="Array.isArray(activeSection.imageUrls) && activeSection.imageUrls.length">
+                                                        <v-col
+                                                            v-for="(imageUrl, imageIndex) in activeSection.imageUrls"
+                                                            :key="`${imageUrl}-${imageIndex}`"
+                                                            cols="12"
+                                                            sm="6"
+                                                            md="4"
+                                                        >
+                                                            <v-card variant="outlined" class="pa-2">
+                                                                <v-img
+                                                                    :src="imageUrl"
+                                                                    height="150"
+                                                                    cover
+                                                                    class="rounded-lg"
+                                                                ></v-img>
+                                                                <div class="d-flex justify-end mt-2">
+                                                                    <v-btn
+                                                                        color="error"
+                                                                        size="small"
+                                                                        variant="text"
+                                                                        icon
+                                                                        density="comfortable"
+                                                                        @click="removeHeroImage(imageIndex)"
+                                                                    >
+                                                                        <v-icon>mdi-delete</v-icon>
+                                                                    </v-btn>
+                                                                </div>
+                                                            </v-card>
+                                                        </v-col>
+                                                    </v-row>
+                                                    <v-alert v-else type="info" variant="tonal" density="compact">
+                                                        Henüz hero görseli eklenmedi.
+                                                    </v-alert>
                                                 </v-col>
                                             </v-row>
 
@@ -465,6 +519,7 @@ const snackbarText = ref('')
 const snackbarColor = ref('success')
 const imageUploading = ref(false) // Resim yükleme durumu için
 const memberImageUploading = ref(false)
+const heroImageUploading = ref(false)
 
 // Bölüm düzenleme için değişkenler
 const activeSectionIndex = ref(null)  // Seçili bölümün indeksi
@@ -655,6 +710,13 @@ const selectSection = (index) => {
     else if (activeSection.value.sectionName === 'values' && !activeSection.value.values) {
         activeSection.value.values = JSON.parse(JSON.stringify(defaultTemplates.values.values))
     }
+
+    if (activeSection.value.sectionName === 'hero') {
+        if (!Array.isArray(activeSection.value.imageUrls)) {
+            activeSection.value.imageUrls = activeSection.value.imageUrl ? [activeSection.value.imageUrl] : []
+        }
+        activeSection.value.imageUrls = activeSection.value.imageUrls.filter(Boolean)
+    }
 }
 
 // Bölüm Ekleme
@@ -667,7 +729,8 @@ const addSection = () => {
         title: '',
         subtitle: '',
         content: '',
-        imageUrl: ''
+        imageUrl: '',
+        imageUrls: []
     }
 
     // Özel bölüm tipleri için varsayılan verileri ekle
@@ -778,12 +841,18 @@ const cancelEdit = () => {
 
 const sanitizeSections = (sections = []) => {
     return sections.map((section) => {
-        const { imageFile, ...rest } = section
+        const { imageFile, heroImageFile, ...rest } = section
+        if (Array.isArray(rest.imageUrls)) {
+            rest.imageUrls = rest.imageUrls.filter(Boolean)
+        }
         if (Array.isArray(rest.members)) {
             rest.members = rest.members.map((member) => {
                 const { imageFile: memberImageFile, ...memberRest } = member
                 return memberRest
             })
+        }
+        if (rest.sectionName === 'hero' && Array.isArray(rest.imageUrls) && rest.imageUrls.length > 0) {
+            rest.imageUrl = rest.imageUrls[0]
         }
         return rest
     })
@@ -950,6 +1019,49 @@ const handleImageUpload = async () => {
     }
 }
 
+const handleHeroImageUpload = async () => {
+    if (!activeSection.value || activeSection.value.sectionName !== 'hero' || !activeSection.value.heroImageFile) {
+        return
+    }
+
+    const file = Array.isArray(activeSection.value.heroImageFile)
+        ? activeSection.value.heroImageFile[0]
+        : activeSection.value.heroImageFile
+
+    const validation = validateImageFile(file)
+    if (!validation.ok) {
+        showNotification(validation.message, 'error')
+        activeSection.value.heroImageFile = null
+        return
+    }
+
+    heroImageUploading.value = true
+
+    try {
+        const imageUrl = await uploadImage(file)
+        if (imageUrl) {
+            if (!Array.isArray(activeSection.value.imageUrls)) {
+                activeSection.value.imageUrls = []
+            }
+            if (!activeSection.value.imageUrls.includes(imageUrl)) {
+                activeSection.value.imageUrls.push(imageUrl)
+            }
+            if (!activeSection.value.imageUrl) {
+                activeSection.value.imageUrl = imageUrl
+            }
+            showNotification('Hero görseli başarıyla eklendi', 'success')
+        } else {
+            showNotification('Hero görseli yüklenirken bir hata oluştu', 'error')
+        }
+    } catch (error) {
+        console.error('Hero görsel yükleme hatası:', error)
+        showNotification('Hero görseli yüklenirken bir hata oluştu', 'error')
+    } finally {
+        heroImageUploading.value = false
+        activeSection.value.heroImageFile = null
+    }
+}
+
 const handleMemberImageUpload = async (member) => {
     if (!member?.imageFile) return
 
@@ -987,6 +1099,19 @@ const handleMemberImageUpload = async (member) => {
 const removeImage = () => {
     if (confirm('Bu görseli kaldırmak istediğinizden emin misiniz?')) {
         activeSection.value.imageUrl = ''
+    }
+}
+
+const removeHeroImage = (index) => {
+    if (!activeSection.value || activeSection.value.sectionName !== 'hero') return
+    if (!Array.isArray(activeSection.value.imageUrls)) return
+    if (!confirm('Bu hero görselini kaldırmak istediğinizden emin misiniz?')) return
+
+    const removed = activeSection.value.imageUrls[index]
+    activeSection.value.imageUrls.splice(index, 1)
+
+    if (activeSection.value.imageUrl === removed) {
+        activeSection.value.imageUrl = activeSection.value.imageUrls[0] || ''
     }
 }
 

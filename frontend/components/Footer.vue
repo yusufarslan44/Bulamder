@@ -1,20 +1,22 @@
 <template>
   <v-footer class="footer-container pa-0">
-    <!-- Dalgalı üst kenar efekti - daha küçük -->
+    <!-- Dalgalı üst kenar efekti -->
     <div class="footer-wave">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none">
-        <path fill="#2E7D32" d="M0,32L80,34.7C160,37,320,43,480,40C640,37,800,27,960,24C1120,21,1280,27,1360,29.3L1440,32L1440,60L1360,60C1280,60,1120,60,960,60C800,60,640,60,480,60C320,60,160,60,80,60L0,60Z"></path>
+        <path :fill="isBlackWhite ? '#0d1117' : '#2E7D32'"
+          d="M0,32L80,34.7C160,37,320,43,480,40C640,37,800,27,960,24C1120,21,1280,27,1360,29.3L1440,32L1440,60L1360,60C1280,60,1120,60,960,60C800,60,640,60,480,60C320,60,160,60,80,60L0,60Z">
+        </path>
       </svg>
     </div>
 
-    <!-- Ana footer içeriği - daha kompakt -->
-    <div class="footer-content bg-gradient px-3 py-6 w-100">
+    <!-- Ana footer içeriği -->
+    <div :class="isBlackWhite ? 'footer-content dark-footer px-3 py-6 w-100' : 'footer-content light-footer px-3 py-6 w-100'">
       <v-container class="py-0">
         <v-row dense>
-          <!-- Logo ve Hakkımızda Kısmı - daha kısa açıklama -->
+          <!-- Logo ve Hakkımızda -->
           <v-col cols="12" sm="6" md="3" class="px-3">
             <div class="footer-logo mb-3 d-flex align-center">
-              <v-icon color="white" size="28" class="me-2">mdi-pine-tree</v-icon>
+              <img :key="footerLogoSrc" :src="footerLogoSrc" alt="BULAMDER Logo" class="footer-logo-img me-2">
               <h3 class="text-h6 font-weight-bold mb-0">BULAMDER</h3>
             </div>
             <p class="text-body-2 mb-3 footer-text">
@@ -38,15 +40,12 @@
             </div>
           </v-col>
 
-          <!-- Hızlı Linkler - Responsive düzenlenmiş -->
+          <!-- Hızlı Linkler -->
           <v-col cols="12" sm="6" md="4" class="px-3 footer-links-col">
             <h3 class="text-h6 font-weight-bold mb-2 section-title">Hızlı Linkler</h3>
             <v-divider class="divider mb-3" color="rgba(255,255,255,0.2)" width="40"></v-divider>
-            
-            <!-- Mobil görünümde tek sütun, tablet ve üstünde iki sütun -->
             <div class="footer-links-container">
               <v-row>
-                <!-- İlk 3 link (veya mobilde hepsi) -->
                 <v-col cols="12" sm="6" class="py-0">
                   <v-list class="footer-links-list pa-0 bg-transparent" density="compact">
                     <v-list-item
@@ -65,8 +64,6 @@
                     </v-list-item>
                   </v-list>
                 </v-col>
-                
-                <!-- Son 3 link (mobilde gizlenir) -->
                 <v-col cols="12" sm="6" class="py-0">
                   <v-list class="footer-links-list pa-0 bg-transparent" density="compact">
                     <v-list-item
@@ -89,11 +86,10 @@
             </div>
           </v-col>
 
-          <!-- İletişim Bilgileri - daha kompakt -->
+          <!-- İletişim -->
           <v-col cols="12" md="5" class="px-3 footer-contact-col">
             <h3 class="text-h6 font-weight-bold mb-2 section-title">İletişim</h3>
             <v-divider class="divider mb-2" color="rgba(255,255,255,0.2)" width="40"></v-divider>
-            
             <v-row dense class="contact-card pa-3 ma-0">
               <v-col cols="12" sm="6" v-for="(contact, i) in contactInfo.slice(0, 2)" :key="i" class="pa-1">
                 <div class="d-flex align-center contact-item mb-2">
@@ -123,8 +119,8 @@
       </v-container>
     </div>
 
-    <!-- Alt footer - daha kompakt -->
-    <div class="footer-bottom py-2 px-3 w-100">
+    <!-- Alt footer -->
+    <div :class="isBlackWhite ? 'footer-bottom footer-bottom-dark py-2 px-3 w-100' : 'footer-bottom py-2 px-3 w-100'">
       <v-container class="py-0">
         <v-row align="center" dense>
           <v-col cols="12" md="6" class="text-center text-md-start order-2 order-md-1 py-1">
@@ -133,8 +129,7 @@
               <strong>Bulanık Kültür ve Dayanışma Derneği</strong>
             </div>
           </v-col>
-          
-          <v-col cols="12" md="6" class="text-center text-md-end order-1 order-md-2 py-1">
+	          <v-col cols="12" md="6" class="text-center text-md-end order-1 order-md-2 py-1 bottom-links-col">
             <v-btn 
               v-for="(link, i) in bottomLinks" 
               :key="i" 
@@ -153,6 +148,9 @@
 </template>
 
 <script setup>
+const { isBlackWhite } = useBlackWhiteTheme()
+const footerLogoSrc = computed(() => '/Gemini_Generated_Image_adxwneadxwneadxw-Photoroom.png')
+
 const socialIcons = [
   { icon: 'mdi-facebook', link: 'https://facebook.com' },
   { icon: 'mdi-twitter', link: 'https://twitter.com' },
@@ -203,8 +201,17 @@ const bottomLinks = [
   width: 100%;
 }
 
-.bg-gradient {
+/* Light tema footer */
+.light-footer {
   background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+  color: white;
+}
+
+/* Dark tema footer */
+.dark-footer {
+  background: linear-gradient(135deg, #0d1420 0%, #111827 50%, #0f172a 100%);
+  border-top: 1px solid rgba(16, 185, 129, 0.15);
+  color: white;
 }
 
 .footer-content {
@@ -214,6 +221,16 @@ const bottomLinks = [
 .footer-logo {
   display: flex;
   align-items: center;
+}
+
+.footer-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: none !important;
+  filter: none !important;
+  background: transparent !important;
 }
 
 .footer-text {
@@ -228,7 +245,7 @@ const bottomLinks = [
 }
 
 .social-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(16, 185, 129, 0.3);
   transform: translateY(-3px);
 }
 
@@ -241,16 +258,15 @@ const bottomLinks = [
   opacity: 0.3;
 }
 
-.footer-link {
+.footer-list-item {
   position: relative;
   transition: all 0.3s ease;
   overflow: hidden;
-  letter-spacing: 0.2px;
   opacity: 0.85;
   min-height: 0;
 }
 
-.footer-link:hover {
+.footer-list-item:hover {
   opacity: 1;
   padding-left: 4px !important;
   background: rgba(255, 255, 255, 0.05);
@@ -270,6 +286,7 @@ const bottomLinks = [
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .contact-label {
@@ -283,11 +300,19 @@ const bottomLinks = [
 .contact-text {
   font-size: 13px;
   opacity: 0.9;
+  word-break: break-word;
 }
 
+/* Light footer bottom bar */
 .footer-bottom {
   background-color: rgba(0, 0, 0, 0.15);
   color: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark footer bottom bar */
+.footer-bottom-dark {
+  background-color: rgba(0, 0, 0, 0.35) !important;
+  border-top: 1px solid rgba(16, 185, 129, 0.1);
 }
 
 .footer-copyright {
@@ -306,9 +331,20 @@ const bottomLinks = [
   text-decoration: underline;
 }
 
+.bottom-links-col {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
 @media (max-width: 960px) {
   .footer-links-col, .footer-contact-col {
     margin-top: 10px;
+  }
+
+  .bottom-links-col {
+    justify-content: center;
   }
 }
 
@@ -328,5 +364,9 @@ const bottomLinks = [
   .footer-bottom {
     text-align: center;
   }
+
+  .footer-bottom-link {
+    margin-right: 0 !important;
+  }
 }
-</style> 
+</style>

@@ -8,7 +8,7 @@ export default defineNuxtPlugin(nuxtApp => {
     components,
     directives,
     theme: {
-      defaultTheme: 'light',
+      defaultTheme: 'monochrome',
       themes: {
         light: {
           dark: false,
@@ -21,6 +21,22 @@ export default defineNuxtPlugin(nuxtApp => {
             success: '#4CAF50',
             warning: '#FFC107',
             background: '#F5F5F5'
+          }
+        },
+        monochrome: {
+          dark: true,
+          colors: {
+            primary: '#10b981',
+            secondary: '#34d399',
+            accent: '#6ee7b7',
+            error: '#f87171',
+            info: '#60a5fa',
+            success: '#10b981',
+            warning: '#fbbf24',
+            background: '#0d1117',
+            surface: '#1c2333',
+            'on-surface': '#e2e8f0',
+            'on-background': '#e2e8f0'
           }
         }
       }

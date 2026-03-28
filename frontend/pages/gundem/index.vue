@@ -19,7 +19,12 @@
                     <v-row>
                         <v-col cols="12" md="6" class="pa-0">
                             <div class="featured-image-container">
-                                <v-img :src="featuredNews.imageUrl" height="450" cover class="featured-image"></v-img>
+                                <v-img
+                                    :src="featuredNews.imageUrl"
+                                    :height="$vuetify.display.xs ? '240' : $vuetify.display.sm ? '320' : '450'"
+                                    cover
+                                    class="featured-image"
+                                ></v-img>
                                 <div class="image-overlay-gradient"></div>
                             </div>
                         </v-col>
@@ -31,16 +36,19 @@
                                 </h2>
                                 <p class="text-body-1 mb-6 featured-excerpt" v-html="featuredNews.description.slice(0, 150) + '...'">
                                 </p>
-                                <div class="d-flex align-center justify-space-between">
+                                <div class="d-flex align-center justify-space-between featured-meta-row">
                                     <span class="text-caption d-flex align-center">
                                         <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                                         {{ formatDate(featuredNews.createdAt) }}
                                     </span>
-                                    <v-btn color="primary" class="rounded-xl elevation-2 px-4 read-more-btn" size="large">
-                                        <NuxtLink class="gundem-link text-white" :to="`/gundem/${featuredNews._id}`">
-                                            Devamını Oku
-                                            <v-icon end icon="mdi-arrow-right" class="ml-1"></v-icon>
-                                        </NuxtLink>
+                                    <v-btn
+                                        color="primary"
+                                        class="rounded-xl elevation-2 px-4 read-more-btn"
+                                        size="large"
+                                        :to="`/gundem/${featuredNews._id}`"
+                                        append-icon="mdi-arrow-right"
+                                    >
+                                        Devamını Oku
                                     </v-btn>
                                 </div>
                             </div>
@@ -90,7 +98,7 @@
                             <p class="text-body-2 mb-4 news-excerpt"
                                 v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
                             </p>
-                            <div class="d-flex align-center justify-space-between mt-4">
+                            <div class="d-flex align-center justify-space-between mt-4 news-meta-row">
                                 <span class="text-caption d-flex align-center">
                                     <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                                     {{ formatDate(haber.createdAt) }}
@@ -111,7 +119,7 @@
         <!-- Sonuç bulunamadı mesajı -->
         <v-row v-else class="mt-8">
             <v-col cols="12" class="text-center">
-                <v-alert type="info" class="mx-auto" style="max-width: 500px;" variant="tonal" closable>
+                <v-alert type="info" class="mx-auto empty-result-alert" variant="tonal" closable>
                     Bu kategoride henüz haber bulunmamaktadır.
                     <v-btn color="primary" variant="text" class="mt-2" @click="selectedCategoryIndex = 'all'">
                         Tüm haberleri göster
@@ -126,7 +134,7 @@
                 <v-pagination 
                     v-model="currentPage" 
                     :length="totalPages" 
-                    :total-visible="7" 
+                    :total-visible="$vuetify.display.xs ? 3 : $vuetify.display.sm ? 5 : 7"
                     rounded="circle"
                     active-color="primary"
                     class="pagination-container"
@@ -271,6 +279,8 @@ onMounted(async () => {
 .filter-bar {
     background-color: rgba(9, 194, 86, 0.05);
     border: 1px solid rgba(9, 194, 86, 0.1);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .filter-chip {
@@ -279,6 +289,11 @@ onMounted(async () => {
 
 .filter-chip:hover {
     background-color: rgba(9, 194, 86, 0.1);
+}
+
+:deep(.v-chip-group .v-slide-group__content) {
+    flex-wrap: wrap;
+    row-gap: 8px;
 }
 
 .primary-selected {
@@ -339,6 +354,16 @@ onMounted(async () => {
     transform: translateY(-3px);
 }
 
+.news-meta-row {
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.featured-meta-row {
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
 .gundem-link {
     text-decoration: none;
 }
@@ -347,6 +372,11 @@ onMounted(async () => {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
     border-radius: 30px;
     padding: 8px 16px;
+}
+
+.empty-result-alert {
+    max-width: 500px;
+    width: 100%;
 }
 
 .fade-in {
@@ -383,6 +413,25 @@ onMounted(async () => {
 @media (max-width: 960px) {
     .featured-excerpt {
         min-height: auto;
+    }
+
+    .featured-meta-row {
+        justify-content: flex-start !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .filter-bar {
+        border-radius: 16px !important;
+        padding: 12px !important;
+    }
+
+    .filter-chip {
+        margin-bottom: 6px;
+    }
+
+    .pagination-container {
+        padding: 6px 10px;
     }
 }
 </style>

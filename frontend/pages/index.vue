@@ -6,10 +6,10 @@
                 <div class="hero-section">
                     <div class="hero-overlay"></div>
                     <v-container class="position-relative">
-                        <v-row align="center" style="min-height: 90vh;">
+                        <v-row align="center" class="hero-main-row">
                             <v-col cols="12" md="6" class="hero-content fade-in">
-                                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">DOĞAYLA İÇ
-                                    İÇE</span>
+                                <span class="text-overline text-green-darken-2 font-weight-bold d-block mb-2">{{
+                                    heroSection.subtitle }}</span>
                                 <h1 class="text-h2 font-weight-bold mb-4 text-animation">
                                     {{ heroSection.title }}
                                 </h1>
@@ -30,7 +30,11 @@
                                 </div>
                             </v-col>
                             <v-col cols="12" md="6" class="d-flex justify-center">
-                                <v-carousel cycle height="500" hide-delimiter-background show-arrows="hover"
+                                <v-carousel
+                                    cycle
+                                    :height="$vuetify.display.xs ? '280' : $vuetify.display.sm ? '360' : '500'"
+                                    hide-delimiter-background
+                                    show-arrows="hover"
                                     interval="6000" class="hero-carousel elevation-10">
                                     <v-carousel-item v-for="(image, i) in heroImages" :key="i" :src="image" cover
                                         class="hero-image rounded-xl">
@@ -76,7 +80,7 @@
             <v-row>
                 <v-col cols="12">
                     <v-carousel :key="filteredNews.length" :show-arrows="true"
-                        :height="$vuetify.display.xs || $vuetify.display.sm ? '450' : '450'" hide-delimiter-background
+                        :height="$vuetify.display.xs ? '410' : $vuetify.display.sm ? '440' : '450'" hide-delimiter-background
                         :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" class="news-carousel">
                         <!-- Mobil görünümde her slayt tek kart gösterir -->
                         <template v-if="$vuetify.display.xs || $vuetify.display.sm">
@@ -96,7 +100,7 @@
                                                 <v-card-text class="text-body-2 news-description"
                                                     v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
                                                 </v-card-text>
-                                                <div class="d-flex justify-space-between align-center">
+                                                <div class="d-flex justify-space-between align-center news-card-meta">
                                                     <span class="text-caption text-grey d-flex align-center">
                                                         <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                                                         {{ haber.date }}
@@ -133,7 +137,7 @@
                                                 <v-card-text class="text-body-2 news-description"
                                                     v-html="haber.description.length > 100 ? haber.description.slice(0, 100) + '...' : haber.description">
                                                 </v-card-text>
-                                                <div class="d-flex justify-space-between align-center">
+                                                    <div class="d-flex justify-space-between align-center news-card-meta">
                                                     <span class="text-caption text-grey d-flex align-center">
                                                         <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                                                         {{ haber.date }}
@@ -234,7 +238,7 @@
             <v-row>
                 <v-col cols="12">
                     <v-carousel :key="filteredPhotos.length" :show-arrows="true"
-                        :height="$vuetify.display.xs || $vuetify.display.sm ? '350' : '350'" hide-delimiter-background
+                        :height="$vuetify.display.xs ? '320' : $vuetify.display.sm ? '350' : '350'" hide-delimiter-background
                         :interval="6000" cycle :continuous="false" delimiter-icon="mdi-circle" class="gallery-carousel">
                         <!-- Mobil görünümde her slayt tek kart gösterir -->
                         <template v-if="$vuetify.display.xs || $vuetify.display.sm">
@@ -251,16 +255,17 @@
                                             </v-img>
 
                                             <v-card-text>
-                                                <div class="text-subtitle-1 mb-2">
-                                                    {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
-                                                        "..." : photo.description }}
-                                                </div>
-
-                                                <v-chip size="small" :color="getCategoryColor(photo.category)"
-                                                    class="mt-2">
-                                                    <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
-                                                    {{ getCategoryLabel(photo.category) }}
-                                                </v-chip>
+                                                    <div class="text-subtitle-1 mb-2">
+                                                        {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
+                                                            "..." : photo.description }}
+                                                    </div>
+                                                    <div class="d-flex align-center justify-space-between gallery-card-meta">
+                                                        <v-chip size="small" :color="getCategoryColor(photo.category)"
+                                                            class="mt-2">
+                                                            <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
+                                                            {{ getCategoryLabel(photo.category) }}
+                                                        </v-chip>
+                                                    </div>
                                             </v-card-text>
                                         </v-card>
                                     </v-col>
@@ -284,16 +289,17 @@
                                             </v-img>
 
                                             <v-card-text>
-                                                <div class="text-subtitle-1 mb-2">
-                                                    {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
-                                                        "..." : photo.description }}
-                                                </div>
-
-                                                <v-chip size="small" :color="getCategoryColor(photo.category)"
-                                                    class="mt-2">
-                                                    <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
-                                                    {{ getCategoryLabel(photo.category) }}
-                                                </v-chip>
+                                                    <div class="text-subtitle-1 mb-2">
+                                                        {{ photo.description.length > 25 ? photo.description.slice(0, 25) +
+                                                            "..." : photo.description }}
+                                                    </div>
+                                                    <div class="d-flex align-center justify-space-between gallery-card-meta">
+                                                        <v-chip size="small" :color="getCategoryColor(photo.category)"
+                                                            class="mt-2">
+                                                            <v-icon size="x-small" class="mr-1">mdi-tag</v-icon>
+                                                            {{ getCategoryLabel(photo.category) }}
+                                                        </v-chip>
+                                                    </div>
                                             </v-card-text>
                                         </v-card>
                                     </v-col>
@@ -447,12 +453,26 @@ const gallerySection = computed(() => getSectionContent('gallery') || {
     content: 'Köyümüzden seçkin fotoğraflar'
 })
 
-const heroImages = [
+const defaultHeroImages = [
     'https://cdn.pixabay.com/photo/2021/06/19/17/51/italy-6349105_1280.jpg',
     'https://cdn.pixabay.com/photo/2016/11/19/15/03/buildings-1839726_1280.jpg',
     'https://cdn.pixabay.com/photo/2017/02/22/20/02/village-2090495_1280.jpg',
     'https://cdn.pixabay.com/photo/2014/03/03/16/12/village-279013_1280.jpg'
 ]
+
+const heroImages = computed(() => {
+    const section = heroSection.value || {}
+    const imageList = Array.isArray(section.imageUrls) ? section.imageUrls : []
+    const singleImage = typeof section.imageUrl === 'string' && section.imageUrl.trim()
+        ? [section.imageUrl.trim()]
+        : []
+
+    const merged = [...imageList, ...singleImage].filter(
+        (image, index, arr) => typeof image === 'string' && image.trim() && arr.indexOf(image) === index
+    )
+
+    return merged.length > 0 ? merged : defaultHeroImages
+})
 
 onMounted(async () => {
     try {
@@ -502,6 +522,10 @@ onMounted(async () => {
 
 .hero-content {
     z-index: 2;
+}
+
+.hero-main-row {
+    min-height: 90vh;
 }
 
 .hero-carousel {
@@ -624,6 +648,12 @@ onMounted(async () => {
 
 .read-more:hover {
     transform: translateX(5px);
+}
+
+.news-card-meta,
+.gallery-card-meta {
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .upcoming-event-section {
@@ -791,8 +821,7 @@ onMounted(async () => {
     /* Hero kısmı için responsive ayarlar */
     .hero-carousel {
         margin-top: 30px;
-        height: auto !important;
-        max-height: 380px;
+        height: 360px !important;
     }
 
     /* Haberler carousel için responsive ayarlar */
@@ -820,6 +849,10 @@ onMounted(async () => {
 
     .hero-content {
         padding-bottom: 30px;
+    }
+
+    .hero-main-row {
+        min-height: auto;
     }
 
     .event-card {
@@ -851,7 +884,7 @@ onMounted(async () => {
 
 @media (max-width: 600px) {
     .hero-carousel {
-        max-height: 300px;
+        height: 280px !important;
     }
 
     .text-h2 {

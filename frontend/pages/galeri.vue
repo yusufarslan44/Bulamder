@@ -40,11 +40,11 @@
             </v-col>
         </v-row>
 
-        <v-row v-if="isLoading" justify="center" align="center" style="min-height: 400px">
+        <v-row v-if="isLoading" justify="center" align="center" class="gallery-state-row">
             <v-progress-circular indeterminate color="primary" size="64" width="6"></v-progress-circular>
         </v-row>
 
-        <v-row v-else-if="error" justify="center" align="center" style="min-height: 400px">
+        <v-row v-else-if="error" justify="center" align="center" class="gallery-state-row">
             <v-alert type="error" text variant="elevated" class="mx-auto pa-6 rounded-xl">{{ error }}</v-alert>
         </v-row>
 
@@ -53,7 +53,13 @@
                 :class="{ 'fade-in-item': true }" :style="{ 'animation-delay': `${index * 0.1}s` }">
                 <v-card @click="openPhotoDialog(photo)" class="gallery-card rounded-xl" elevation="3" height="100%">
                     <div class="image-container">
-                        <v-img :src="photo.imageUrl" :alt="photo.title" height="220" cover class="gallery-image">
+                        <v-img
+                            :src="photo.imageUrl"
+                            :alt="photo.title"
+                            :height="$vuetify.display.xs ? '200' : '220'"
+                            cover
+                            class="gallery-image"
+                        >
                             <div class="image-overlay-gradient"></div>
                             <v-card-title class="text-white position-relative">
                             {{ photo.title }}
@@ -110,7 +116,7 @@
                     </div>
                 </v-card-text>
                 <v-divider class="mx-4"></v-divider>
-                <v-card-actions class="pa-4">
+                <v-card-actions class="pa-4 gallery-dialog-actions">
                     <v-btn color="primary" variant="text" prepend-icon="mdi-share-variant">
                         Paylaş
                     </v-btn>
@@ -193,6 +199,8 @@ onMounted(async () => {
     border: 1px solid rgba(9, 194, 86, 0.1);
     max-width: 800px;
     margin: 0 auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .filter-chip {
@@ -294,6 +302,20 @@ onMounted(async () => {
     flex-wrap: wrap;
 }
 
+:deep(.category-chips .v-slide-group__content) {
+    flex-wrap: wrap;
+    row-gap: 8px;
+}
+
+.gallery-dialog-actions {
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.gallery-state-row {
+    min-height: 400px;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -306,12 +328,21 @@ onMounted(async () => {
 }
 
 @media (max-width: 600px) {
+    .filter-bar {
+        border-radius: 16px !important;
+        padding: 12px !important;
+    }
+
     .filter-chip {
         margin-bottom: 8px;
     }
     
     .gallery-description {
         min-height: 40px;
+    }
+
+    .gallery-dialog-actions .v-btn {
+        flex: 1 1 100%;
     }
 }
 </style>
